@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ComTech Gold</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══ FIXED HEADER ═══ -->
+  <header id="app-header">
+    <button class="header-avatar" id="user-avatar">AM</button>
+    <div class="header-center">
+      <img src="../assets/images/headerLogo.png" alt="ComTech Gold" class="header-logo"
+           onerror="this.outerHTML='<span class=\'header-logo-text\'>ComTech Gold</span>'">
+    </div>
+    <div class="header-right">
+      <button class="notif-btn" onclick="showToast('No new notifications')" aria-label="Notifications">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="notif-badge" id="notif-badge">3</span>
+      </button>
+      <button class="currency-pill" id="currency-toggle">
+        <span id="currency-label">USD</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══ SCROLLABLE MAIN ═══ -->
+  <main id="main-scroll">
+
+    <!-- ── TAB: DASHBOARD ── -->
+    <div id="tab-dashboard" class="tab-panel active">
+
+      <!-- Hero / GoldValueComponent -->
+      <section class="hero-section">
+        <div class="balance-label-row">
+          <span class="green-dot"></span>
+          <span>My <span id="hero-currency-name">USD</span> Balance</span>
+        </div>
+        <div class="balance-amount-row">
+          <span class="balance-symbol" id="hero-symbol">$</span>
+          <span class="balance-amount" id="hero-balance">3,500.21</span>
+        </div>
+
+        <div class="holdings-card">
+          <div class="balance-label-row">
+            <span class="green-dot"></span>
+            <span class="holdings-card-label">My Gold Holdings / My Gold Holding Value</span>
+          </div>
+          <div class="holdings-row">
+            <div class="holdings-value-wrap">
+              <span class="h-int" id="h-int">103</span><span class="h-dec" id="h-dec">.12g</span><span class="h-sep"> / </span><span class="h-fiat" id="h-fiat">$ 6,428.30</span>
+            </div>
+            <img src="../assets/icons/twoGoldBars.png" alt="" class="gold-bars-img" onerror="this.style.display='none'">
+          </div>
+        </div>
+
+        <div class="action-btn-row">
+          <button class="action-card-btn" onclick="showToast('Add Funds — coming soon!')">
+            <span class="acb-label">Add Funds</span>
+            <div class="acb-footer">
+              <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
+              <img src="../assets/icons/moneyImage.png" alt="" class="acb-img" onerror="this.style.display='none'">
+            </div>
+          </button>
+          <button class="action-card-btn" onclick="showToast('Buy Gold — coming soon!')">
+            <span class="acb-label">Buy Gold</span>
+            <div class="acb-footer">
+              <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
+              <img src="../assets/icons/goldBiscuit.png" alt="" class="acb-img" onerror="this.style.display='none'">
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- Dashboard body -->
+      <div class="dashboard-body">
+
+        <!-- Withdraw + Sell Gold -->
+        <div class="action-btn-row padded-row" style="margin-top:5px;margin-bottom:0;">
+          <button class="action-card-btn" onclick="showToast('Withdraw — coming soon!')">
+            <span class="acb-label">Withdraw</span>
+            <div class="acb-footer">
+              <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
+              <img src="../assets/icons/moneyImage.png" alt="" class="acb-img" onerror="this.style.display='none'">
+            </div>
+          </button>
+          <button class="action-card-btn" onclick="showToast('Sell Gold — coming soon!')">
+            <span class="acb-label">Sell Gold</span>
+            <div class="acb-footer">
+              <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
+              <img src="../assets/icons/goldBiscuit.png" alt="" class="acb-img" onerror="this.style.display='none'">
+            </div>
+          </button>
+        </div>
+
+        <!-- My Gold & Value Chart Card -->
+        <div class="chart-card">
+          <div class="chart-meta-row">
+            <span class="chart-meta-label">My Gold &amp; Value</span>
+            <span class="chart-meta-unit">(per gram)</span>
+            <span class="growth-tag">+ 1.5% <span class="growth-arrow">↑</span></span>
+          </div>
+          <div class="chart-weight-row">
+            <span class="chart-weight-text" id="chart-weight">103.12g</span>
+            <div class="period-dropdown-wrap">
+              <button class="period-btn" id="period-btn">
+                <span id="period-label">Monthly</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+              </button>
+              <div class="dropdown-menu" id="period-menu" hidden>
+                <div class="dropdown-item" data-value="Daily">Daily</div>
+                <div class="dropdown-item" data-value="Weekly">Weekly</div>
+                <div class="dropdown-item selected" data-value="Monthly">Monthly</div>
+                <div class="dropdown-item" data-value="Yearly">Yearly</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-area">
+            <svg id="chart-svg" width="100%" height="120" viewBox="0 0 320 120" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+        </div>
+
+        <!-- Gold in UAE -->
+        <div class="gold-uae-section">
+          <img src="../assets/images/goldBar.png" alt="Gold Bar" class="gold-bar-img" onerror="this.style.display='none'">
+          <div class="gold-uae-text">
+            <h3 class="section-h3"><span class="gold-accent">Gold</span> in UAE</h3>
+            <p class="body-text">Gold in the UAE is sold chiefly in 24K, 22K, 21K, and 18K grades:</p>
+            <div class="bullet-item">
+              <img src="../assets/icons/list-icon.png" alt="" class="bullet-dot" onerror="this.outerHTML='<span class=&quot;bullet-fallback&quot;>•</span>'">
+              <span class="body-text"><span class="gold-accent">24K</span> is virtually pure (~99–99.9%)</span>
+            </div>
+            <div class="bullet-item">
+              <img src="../assets/icons/list-icon.png" alt="" class="bullet-dot" onerror="this.outerHTML='<span class=&quot;bullet-fallback&quot;>•</span>'">
+              <span class="body-text"><span class="gold-accent">22K</span> (~91.6%), <span class="gold-accent">21K</span>, and <span class="gold-accent">18K</span> demonstrate the mix of durability and value.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Grid -->
+        <div class="action-grid-section">
+          <h2 class="section-h2">What's your next <span class="gold-accent">Action</span>?</h2>
+          <div class="action-grid">
+            <div class="action-item" onclick="showToast('Navigating to SIP…'); document.querySelector(\'[data-tab=tab-sip]\').click()">
+              <div class="action-circle">
+                <img src="../assets/icons/moneyBag.svg" alt="SIP" class="action-icon" onerror="this.outerHTML='<span style=font-size:22px>💰</span>'">
+              </div>
+              <span class="action-label">SIP</span>
+            </div>
+            <div class="action-item" onclick="showToast('Gift — coming soon!')">
+              <div class="action-circle">
+                <img src="../assets/icons/openGift.svg" alt="Gift" class="action-icon" onerror="this.outerHTML='<span style=font-size:22px>🎁</span>'">
+              </div>
+              <span class="action-label">Gift</span>
+            </div>
+            <div class="action-item action-disabled" onclick="showToast('Lending — coming soon!')">
+              <div class="action-circle">
+                <img src="../assets/icons/landing.svg" alt="Lending" class="action-icon" onerror="this.outerHTML='<span style=font-size:22px>🏦</span>'">
+              </div>
+              <span class="action-label muted-label">Lending</span>
+            </div>
+            <div class="action-item" onclick="showToast('Redemption — coming soon!')">
+              <div class="action-circle">
+                <img src="../assets/icons/redemption.svg" alt="Redemption" class="action-icon" onerror="this.outerHTML='<span style=font-size:22px>🔄</span>'">
+              </div>
+              <span class="action-label">Redemption</span>
+            </div>
+            <div class="action-item action-disabled" onclick="showToast('Finance — coming soon!')">
+              <div class="action-circle">
+                <img src="../assets/icons/loan.svg" alt="Finance" class="action-icon" onerror="this.outerHTML='<span style=font-size:22px>📊</span>'">
+              </div>
+              <span class="action-label muted-label">Finance</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Partners Marquee -->
+        <div class="partners-section">
+          <h2 class="section-h2">Our Trusted <span class="gold-accent">Partners</span></h2>
+          <div class="marquee-outer">
+            <div class="marquee-track">
+              <div class="partner-card"><img src="../assets/images/dmcc.png" alt="DMCC" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/fab.png" alt="FAB" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/kalyan.png" alt="Kalyan" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/stonex.png" alt="StoneX" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/zand.png" alt="Zand" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/SabiqLogo.png" alt="Sabiq" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/dmcc.png" alt="DMCC" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/fab.png" alt="FAB" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/kalyan.png" alt="Kalyan" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/stonex.png" alt="StoneX" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/zand.png" alt="Zand" class="partner-logo"></div>
+              <div class="partner-card"><img src="../assets/images/SabiqLogo.png" alt="Sabiq" class="partner-logo"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gold Finance Promo Card -->
+        <div class="gold-finance-card">
+          <img src="../assets/images/goldFinance.png" alt="Gold Finance" class="gf-img" onerror="this.style.display='none'">
+          <div class="gf-text">
+            <h3 class="section-h3" style="margin-bottom:6px;">Gold <span class="gold-accent">Finance</span></h3>
+            <p class="body-text-sm">You're pre-approved for gold-backed finance. Apply now to unlock instant funds.</p>
+          </div>
+        </div>
+
+        <!-- Benefits of Digital Gold -->
+        <div class="benefits-section">
+          <h2 class="section-h2 left-align">Benefits Of <span style="color:#D4AF37;">Digital Gold</span></h2>
+          <div class="benefits-row">
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <img src="../assets/icons/thumb-up.svg" alt="" class="benefit-icon">
+                <span class="body-text-sm">Easy and Convenient Access</span>
+              </div>
+              <div class="benefit-item">
+                <img src="../assets/icons/security.svg" alt="" class="benefit-icon">
+                <span class="body-text-sm">High Security</span>
+              </div>
+              <div class="benefit-item">
+                <img src="../assets/icons/workingHour.svg" alt="" class="benefit-icon">
+                <span class="body-text-sm">Flexibility in investment</span>
+              </div>
+              <div class="benefit-item">
+                <img src="../assets/icons/transparency.svg" alt="" class="benefit-icon">
+                <span class="body-text-sm">Transparent Pricing</span>
+              </div>
+              <div class="benefit-item">
+                <img src="../assets/icons/storageHassles.svg" alt="" class="benefit-icon">
+                <span class="body-text-sm">No Storage Hassles</span>
+              </div>
+            </div>
+            <img src="../assets/images/goldCoins.png" alt="Gold Coins" class="gold-coins-img" onerror="this.style.display='none'">
+          </div>
+        </div>
+
+        <!-- Enquire Now + Chat with us -->
+        <div class="action-btn-row padded-row">
+          <button class="action-card-btn" onclick="showToast('Enquiry sent! We\'ll contact you soon.')">
+            <span class="acb-label">Enquire Now</span>
+            <div class="acb-footer">
+              <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
+              <img src="../assets/images/qustionMark.png" alt="" class="acb-img" onerror="this.style.display='none'">
+            </div>
+          </button>
+          <button class="action-card-btn" onclick="showToast('Chat — coming soon!')">
+            <span class="acb-label">Chat with us</span>
+            <div class="acb-footer">
+              <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
+              <img src="../assets/icons/chatImage.png" alt="" class="acb-img" onerror="this.style.display='none'">
+            </div>
+          </button>
+        </div>
+
+        <!-- Earn Gold -->
+        <div class="earn-gold-wrap">
+          <button class="earn-gold-btn" onclick="showToast('Earn Gold — coming soon!')">
+            <span class="earn-gold-text">Earn Gold</span>
+            <span class="earn-gold-sub">Refer friends &amp; earn gold rewards</span>
+          </button>
+        </div>
+
+      </div><!-- /dashboard-body -->
+    </div><!-- /tab-dashboard -->
+
+    <!-- ── TAB: FUND HISTORY ── -->
+    <div id="tab-transaction" class="tab-panel">
+      <div class="tab-inner-header">
+        <h2 class="tab-title">Fund History</h2>
+      </div>
+      <div class="sub-tabs" data-group="fund-history">
+        <button class="sub-tab-btn active" data-sub="fund-buy">Buy</button>
+        <button class="sub-tab-btn" data-sub="fund-sell">Sell</button>
+      </div>
+      <div id="fund-buy" class="sub-panel active" data-group="fund-history"></div>
+      <div id="fund-sell" class="sub-panel" data-group="fund-history"></div>
+    </div>
+
+    <!-- ── TAB: WALLET ── -->
+    <div id="tab-wallet" class="tab-panel">
+      <div class="tab-inner-header">
+        <h2 class="tab-title">My Wallet</h2>
+      </div>
+      <div class="wallet-balance-card">
+        <div class="balance-label-row" style="margin-bottom:6px;">
+          <span class="green-dot"></span>
+          <span>Available Balance</span>
+        </div>
+        <div class="wallet-balance-amount" id="wallet-balance-display">$ 3,500.21</div>
+        <div class="wallet-stats-row">
+          <div class="wallet-stat">
+            <div class="wallet-stat-label">Total Deposited</div>
+            <div class="wallet-stat-value" id="wallet-deposited">$ 5,200.00</div>
+          </div>
+          <div class="wallet-stat-divider"></div>
+          <div class="wallet-stat">
+            <div class="wallet-stat-label">Total Withdrawn</div>
+            <div class="wallet-stat-value" id="wallet-withdrawn">$ 1,699.79</div>
+          </div>
+        </div>
+      </div>
+      <h3 class="sub-section-title">Recent Deposits</h3>
+      <div id="wallet-deposits"></div>
+    </div>
+
+    <!-- ── TAB: GOLD HISTORY ── -->
+    <div id="tab-gold-history" class="tab-panel">
+      <div class="tab-inner-header">
+        <h2 class="tab-title">Gold History</h2>
+      </div>
+      <div class="sub-tabs" data-group="gold-history">
+        <button class="sub-tab-btn active" data-sub="gold-receive">Receive</button>
+        <button class="sub-tab-btn" data-sub="gold-send">Send</button>
+      </div>
+      <div id="gold-receive" class="sub-panel active" data-group="gold-history"></div>
+      <div id="gold-send" class="sub-panel" data-group="gold-history"></div>
+    </div>
+
+    <!-- ── TAB: SIP ── -->
+    <div id="tab-sip" class="tab-panel">
+      <div class="tab-inner-header">
+        <h2 class="tab-title">SIP Plans</h2>
+      </div>
+      <div id="sip-list"></div>
+      <div class="create-sip-wrap">
+        <button class="create-sip-btn" onclick="showToast('Create SIP — coming soon!')">+ Create New SIP</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══ FIXED BOTTOM NAV ═══ -->
+  <nav id="bottom-nav">
+    <div class="nav-bar">
+      <button class="nav-item active" data-tab="tab-dashboard">
+        <img src="../assets/icons/dashboard.svg" alt="Dashboard" class="nav-icon">
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-item" data-tab="tab-transaction">
+        <img src="../assets/icons/chart.svg" alt="Fund History" class="nav-icon">
+      </button>
+      <button class="nav-item" data-tab="tab-wallet">
+        <img src="../assets/icons/fundHistory.svg" alt="Wallet" class="nav-icon">
+      </button>
+      <button class="nav-item" data-tab="tab-gold-history">
+        <img src="../assets/icons/goldHistory.svg" alt="Gold History" class="nav-icon">
+      </button>
+      <button class="nav-item" data-tab="tab-sip">
+        <img src="../assets/icons/sip.svg" alt="SIP" class="nav-icon">
+      </button>
+    </div>
+    <button class="support-fab" onclick="showToast('Chat support — coming soon!')">
+      <img src="../assets/icons/support.svg" alt="Support" width="22" height="22" style="filter:brightness(0)">
+    </button>
+  </nav>
+
+</div><!-- /app -->
+
+<div id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

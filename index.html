@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ComTech Gold — Design Review</title>
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; -webkit-tap-highlight-color: transparent; }
+textarea, input { font-family: inherit; }
+
+/* ── Tokens ── */
+:root {
+  --gold:       #CE9214;
+  --gold-light: #FAD786;
+  --gold-bg:    #FFF9EB;
+  --gold-border:#F9D58C;
+  --black:      #000;
+  --white:      #fff;
+  --gray:       #737373;
+  --gray-light: #f5f5f5;
+  --green:      #22C55E;
+  --green-dark: #00A245;
+  --red:        #FF1414;
+  --desktop-bg: #d8d8d8;
+  --radius:     18px;
+  --shadow:     0 0 40px rgba(0,0,0,0.15);
+}
+
+/* ── Body ── */
+body {
+  background: var(--desktop-bg);
+  min-height: 100vh;
+  font-family: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App frame (choice / overlays) ── */
+.app-frame {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Screens ── */
+.screen { display: none; }
+.screen.active { display: flex; }
+
+#screen-choice.active {
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--desktop-bg);
+}
+
+/* ══════════════════════════════
+   CHOICE SCREEN
+══════════════════════════════ */
+.choice-inner {
+  display: flex;
+  flex-direction: column;
+  padding: 40px 20px 36px;
+  flex: 1;
+}
+
+.choice-logo {
+  text-align: center;
+  margin-bottom: 6px;
+}
+.choice-logo-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.choice-heading {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--black);
+  text-align: center;
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+.choice-heading span { color: var(--gold); }
+
+.choice-subtitle {
+  font-size: 13px;
+  color: var(--gray);
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+/* ── Variant cards ── */
+.cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.variant-card {
+  position: relative;
+  width: 100%;
+  background: var(--gold-bg);
+  border: 2px solid var(--gold-border);
+  border-radius: var(--radius);
+  padding: 22px 18px 18px;
+  text-align: left;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 180ms ease;
+  touch-action: manipulation;
+}
+.variant-card:active { transform: scale(0.97); }
+.variant-card.viewed { border-color: var(--green); background: #f0fdf4; }
+
+/* checkmark badge */
+.card-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.variant-card.viewed .card-badge { display: flex; }
+
+.card-top { display: flex; align-items: flex-start; gap: 12px; }
+
+.card-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--gold-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-text-wrap { flex: 1; }
+
+.card-label {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--black);
+  line-height: 1.2;
+  margin-bottom: 3px;
+}
+.card-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.variant-card.viewed .card-tag { color: var(--green-dark); }
+
+.card-desc {
+  font-size: 12px;
+  color: var(--gray);
+  line-height: 1.55;
+  margin-top: 10px;
+}
+
+.card-cta {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.variant-card.viewed .card-cta { color: var(--green-dark); }
+.card-cta-arrow { font-size: 15px; transition: transform 120ms ease; }
+.variant-card:active .card-cta-arrow { transform: translateX(3px); }
+
+/* progress hint */
+.progress-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--gray);
+  margin-bottom: 20px;
+}
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ddd;
+  transition: background 300ms ease;
+}
+.progress-dot.done { background: var(--green); }
+
+/* ── Feedback trigger zone ── */
+#feedback-trigger-zone {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.both-viewed-msg {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-dark);
+  text-align: center;
+}
+
+.btn-gold-full {
+  width: 100%;
+  min-height: 54px;
+  background: linear-gradient(135deg, #CE9214 0%, #FAD786 55%, #CE9214 100%);
+  color: #000;
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 18px rgba(206,146,20,0.38);
+  transition: opacity 120ms ease, transform 100ms ease;
+  touch-action: manipulation;
+}
+.btn-gold-full:active { opacity: 0.85; transform: scale(0.98); }
+
+.submitted-msg {
+  display: none;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green-dark);
+  padding: 14px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 1.5px solid #bbf7d0;
+  width: 100%;
+}
+
+/* ══════════════════════════════
+   VIEWER SCREEN
+══════════════════════════════ */
+#screen-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+}
+#screen-viewer.active { display: block; }
+
+#variant-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ── Back button overlay ── */
+#btn-back {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 9999;
+  display: none;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 18px;
+  background: rgba(10, 10, 10, 0.78);
+  color: #fff;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  touch-action: manipulation;
+  letter-spacing: 0.01em;
+}
+#btn-back.visible { display: flex; }
+
+/* ── Viewing label (small pill above back btn) ── */
+#viewing-label {
+  position: fixed;
+  top: 72px;
+  left: 16px;
+  z-index: 9999;
+  display: none;
+  padding: 4px 12px;
+  background: rgba(206,146,20,0.9);
+  color: #000;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+#viewing-label.visible { display: block; }
+
+/* ══════════════════════════════
+   FEEDBACK & THANKYOU OVERLAYS
+══════════════════════════════ */
+.overlay-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.55);
+  justify-content: center;
+  align-items: flex-end;
+  display: none;
+}
+.overlay-screen.active { display: flex; }
+
+.overlay-frame {
+  width: 100%;
+  max-width: 430px;
+  max-height: 92vh;
+  background: var(--white);
+  border-radius: 24px 24px 0 0;
+  overflow-y: auto;
+  padding: 24px 24px 40px;
+  transform: translateY(100%);
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-overflow-scrolling: touch;
+}
+.overlay-screen.active .overlay-frame { transform: translateY(0); }
+
+/* Feedback header */
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+.overlay-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--black);
+}
+.btn-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gray-light);
+  color: var(--gray);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+/* Form */
+.form-section { margin-bottom: 22px; }
+
+.pref-fieldset {
+  border: none;
+  padding: 0;
+}
+.pref-legend {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 14px;
+  display: block;
+}
+.pref-fieldset.error .pref-legend { color: var(--red); }
+.error-msg {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 6px;
+  display: none;
+}
+.pref-fieldset.error .error-msg { display: block; }
+
+.radio-options { display: flex; flex-direction: column; gap: 10px; }
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
+  touch-action: manipulation;
+}
+.radio-label:has(input:checked) {
+  border-color: var(--gold);
+  background: var(--gold-bg);
+}
+.radio-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gold);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.radio-label-text { flex: 1; }
+.radio-label-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  display: block;
+  line-height: 1.2;
+}
+.radio-label-sub {
+  font-size: 11px;
+  color: var(--gray);
+  margin-top: 2px;
+  display: block;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 8px;
+  display: block;
+}
+.form-textarea {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--black);
+  resize: none;
+  line-height: 1.55;
+  transition: border-color 150ms ease;
+  background: #fff;
+}
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.form-textarea::placeholder { color: #b0b0b0; }
+
+/* ── Thank you ── */
+.thankyou-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 0 8px;
+}
+.thankyou-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #dcfce7;
+  border: 2px solid #bbf7d0;
+  color: var(--green-dark);
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.thankyou-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+.thankyou-body {
+  font-size: 14px;
+  color: var(--gray);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     SCREEN 1 — CHOICE
+══════════════════════════════ -->
+<div id="screen-choice" class="screen">
+  <div class="app-frame">
+    <div class="choice-inner">
+
+      <div class="choice-logo">
+        <span class="choice-logo-text">ComTech Gold</span>
+      </div>
+
+      <h1 class="choice-heading">Review Both<br><span>Designs</span></h1>
+      <p class="choice-subtitle">Open Design A and Design B, explore each one, then share which you prefer.</p>
+
+      <div class="cards-grid">
+
+        <!-- Card A -->
+        <button class="variant-card" id="card-a" data-variant="a">
+          <div class="card-badge">✓</div>
+          <div class="card-top">
+            <div class="card-icon-wrap">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#CE9214" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <div class="card-text-wrap">
+              <div class="card-label">Design A</div>
+              <div class="card-tag" id="card-a-tag">New Redesign</div>
+            </div>
+          </div>
+          <p class="card-desc">A fresh redesign with a new visual identity — updated layout, colours, and navigation patterns.</p>
+          <div class="card-cta">
+            <span>Open Design A</span>
+            <span class="card-cta-arrow">→</span>
+          </div>
+        </button>
+
+        <!-- Card B -->
+        <button class="variant-card" id="card-b" data-variant="b">
+          <div class="card-badge">✓</div>
+          <div class="card-top">
+            <div class="card-icon-wrap">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#CE9214" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+              </svg>
+            </div>
+            <div class="card-text-wrap">
+              <div class="card-label">Design B</div>
+              <div class="card-tag" id="card-b-tag">Current Demo</div>
+            </div>
+          </div>
+          <p class="card-desc">The existing app interface converted to web — the baseline design currently used in the product.</p>
+          <div class="card-cta">
+            <span>Open Design B</span>
+            <span class="card-cta-arrow">→</span>
+          </div>
+        </button>
+
+      </div><!-- /cards-grid -->
+
+      <!-- Progress indicator -->
+      <div class="progress-hint" id="progress-hint">
+        <span id="progress-text">Open both designs to unlock feedback</span>
+        <div class="progress-dots">
+          <div class="progress-dot" id="dot-a"></div>
+          <div class="progress-dot" id="dot-b"></div>
+        </div>
+      </div>
+
+      <!-- Feedback zone — hidden until both seen -->
+      <div id="feedback-trigger-zone">
+        <p class="both-viewed-msg">✓ You've reviewed both designs!</p>
+        <button id="btn-submit-feedback" class="btn-gold-full">Submit Feedback</button>
+        <p class="submitted-msg" id="submitted-msg">✓ Feedback submitted — thank you!</p>
+      </div>
+
+    </div><!-- /choice-inner -->
+  </div><!-- /app-frame -->
+</div><!-- /screen-choice -->
+
+
+<!-- ══════════════════════════════
+     SCREEN 2 — VIEWER
+══════════════════════════════ -->
+<div id="screen-viewer" class="screen">
+  <iframe id="variant-iframe" src="" title="Design variant" allowfullscreen></iframe>
+</div>
+
+<!-- Back button (fixed overlay above iframe) -->
+<button id="btn-back" aria-label="Back to choice screen">
+  ← Back
+</button>
+
+<!-- Viewing label pill -->
+<div id="viewing-label"></div>
+
+
+<!-- ══════════════════════════════
+     SCREEN 3 — FEEDBACK OVERLAY
+══════════════════════════════ -->
+<div id="screen-feedback" class="overlay-screen">
+  <div class="overlay-frame">
+
+    <div class="overlay-header">
+      <h2 class="overlay-title">Your Feedback</h2>
+      <button class="btn-close" id="btn-close-feedback" aria-label="Close">✕</button>
+    </div>
+
+    <form id="feedback-form" novalidate>
+
+      <div class="form-section">
+        <fieldset class="pref-fieldset" id="pref-fieldset">
+          <legend class="pref-legend">Which design do you prefer?</legend>
+          <div class="radio-options">
+            <label class="radio-label">
+              <input type="radio" name="preference" value="A">
+              <div class="radio-label-text">
+                <span class="radio-label-title">Design A</span>
+                <span class="radio-label-sub">New Redesign</span>
+              </div>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="preference" value="B">
+              <div class="radio-label-text">
+                <span class="radio-label-title">Design B</span>
+                <span class="radio-label-sub">Current Demo</span>
+              </div>
+            </label>
+          </div>
+          <p class="error-msg">Please select a design before submitting.</p>
+        </fieldset>
+      </div>
+
+      <div class="form-section">
+        <label class="form-label" for="feedback-text">What stood out to you? <span style="font-weight:400;color:#b0b0b0">(optional)</span></label>
+        <textarea
+          id="feedback-text"
+          name="feedback"
+          class="form-textarea"
+          rows="5"
+          maxlength="1000"
+          placeholder="Tell us what you liked or disliked — layout, colours, navigation, clarity…"
+        ></textarea>
+      </div>
+
+      <button type="submit" class="btn-gold-full">Submit Feedback</button>
+
+    </form>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     SCREEN 4 — THANK YOU OVERLAY
+══════════════════════════════ -->
+<div id="screen-thankyou" class="overlay-screen">
+  <div class="overlay-frame">
+    <div class="thankyou-inner">
+      <div class="thankyou-icon">✓</div>
+      <h2 class="thankyou-title">Thank you!</h2>
+      <p class="thankyou-body">Your feedback has been saved.<br>It will help shape the final design direction.</p>
+      <button id="btn-done" class="btn-gold-full">Done</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+(function () {
+  'use strict';
+
+  // ── Variant paths (relative from ship/index.html) ──
+  var VARIANTS = {
+    a: './design-a/comtech-gold-dashboard-v4.html',
+    b: './design-b/index.html'
+  };
+
+  // ── App state ──
+  var APP = {
+    currentScreen: 'choice',
+    activeVariant: null,
+    seenA: false,
+    seenB: false,
+    submitted: false
+  };
+
+  // ── DOM refs ──
+  var elScreenChoice   = document.getElementById('screen-choice');
+  var elScreenViewer   = document.getElementById('screen-viewer');
+  var elScreenFeedback = document.getElementById('screen-feedback');
+  var elScreenThankyou = document.getElementById('screen-thankyou');
+  var elIframe         = document.getElementById('variant-iframe');
+  var elBtnBack        = document.getElementById('btn-back');
+  var elViewingLabel   = document.getElementById('viewing-label');
+  var elCardA          = document.getElementById('card-a');
+  var elCardB          = document.getElementById('card-b');
+  var elDotA           = document.getElementById('dot-a');
+  var elDotB           = document.getElementById('dot-b');
+  var elFeedbackZone   = document.getElementById('feedback-trigger-zone');
+  var elBtnSubmitFb    = document.getElementById('btn-submit-feedback');
+  var elSubmittedMsg   = document.getElementById('submitted-msg');
+  var elProgressText   = document.getElementById('progress-text');
+  var elForm           = document.getElementById('feedback-form');
+  var elPrefFieldset   = document.getElementById('pref-fieldset');
+
+  // ── Overlay animation helper ──
+  function showOverlay(el) {
+    el.style.display = 'flex';
+    // double rAF so initial transform is painted before transition fires
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        el.classList.add('active');
+      });
+    });
+  }
+
+  function hideOverlay(el, cb) {
+    el.classList.remove('active');
+    setTimeout(function () {
+      el.style.display = 'none';
+      if (cb) cb();
+    }, 310);
+  }
+
+  // ── goto(screen, variant?) ──
+  function goto(screen, variant) {
+    // Hide active overlays
+    if (APP.currentScreen === 'feedback') {
+      elScreenFeedback.classList.remove('active');
+      elScreenFeedback.style.display = 'none';
+    }
+    if (APP.currentScreen === 'thankyou') {
+      elScreenThankyou.classList.remove('active');
+      elScreenThankyou.style.display = 'none';
+    }
+
+    // Back button / label — only for viewer
+    elBtnBack.classList.remove('visible');
+    elViewingLabel.classList.remove('visible');
+
+    if (screen === 'choice') {
+      elScreenViewer.classList.remove('active');
+      elIframe.src = '';            // release iframe memory
+      elScreenChoice.classList.add('active');
+      renderChoiceState();
+
+    } else if (screen === 'viewer') {
+      APP.activeVariant = variant;
+      elScreenChoice.classList.remove('active');
+
+      // Set iframe src then show screen
+      var path = VARIANTS[variant];
+      elIframe.src = path;
+
+      // For Variant A (1080px fixed frame) — scale to fit viewport
+      if (variant === 'a') {
+        elIframe.style.transform = '';
+        elIframe.style.width     = '100%';
+        elIframe.style.height    = '100%';
+        elIframe.onload = function () {
+          applyVariantAScale();
+        };
+      } else {
+        elIframe.onload = null;
+        elIframe.style.transform = '';
+        elIframe.style.transformOrigin = '';
+        elIframe.style.width  = '100%';
+        elIframe.style.height = '100%';
+      }
+
+      elScreenViewer.classList.add('active');
+      elBtnBack.classList.add('visible');
+      elViewingLabel.textContent = variant === 'a' ? 'Design A' : 'Design B';
+      elViewingLabel.classList.add('visible');
+
+      markSeen(variant);
+
+    } else if (screen === 'feedback') {
+      showOverlay(elScreenFeedback);
+
+    } else if (screen === 'thankyou') {
+      hideOverlay(elScreenFeedback, function () {
+        showOverlay(elScreenThankyou);
+      });
+    }
+
+    APP.currentScreen = screen;
+  }
+
+  // ── Variant A scaling (1080×1920 frame → fit viewport) ──
+  function applyVariantAScale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var scale = Math.min(vw / 1080, vh / 1920);
+    var iw = (vw / scale);
+    var ih = (vh / scale);
+    elIframe.style.transformOrigin = '0 0';
+    elIframe.style.transform  = 'scale(' + scale + ')';
+    elIframe.style.width      = iw + 'px';
+    elIframe.style.height     = ih + 'px';
+    elIframe.style.position   = 'absolute';
+    elIframe.style.top        = '0';
+    elIframe.style.left       = '0';
+  }
+
+  // Handle resize when viewing Variant A
+  window.addEventListener('resize', function () {
+    if (APP.currentScreen === 'viewer' && APP.activeVariant === 'a') {
+      applyVariantAScale();
+    }
+  });
+
+  // ── markSeen(variant) ──
+  function markSeen(variant) {
+    if (variant === 'a' && !APP.seenA) {
+      APP.seenA = true;
+      localStorage.setItem('ab_seen_a', '1');
+    }
+    if (variant === 'b' && !APP.seenB) {
+      APP.seenB = true;
+      localStorage.setItem('ab_seen_b', '1');
+    }
+    // Update card visual immediately
+    updateCardState();
+  }
+
+  // ── updateCardState() ──
+  function updateCardState() {
+    if (APP.seenA) { elCardA.classList.add('viewed'); elDotA.classList.add('done'); }
+    if (APP.seenB) { elCardB.classList.add('viewed'); elDotB.classList.add('done'); }
+  }
+
+  // ── renderChoiceState() ──
+  function renderChoiceState() {
+    updateCardState();
+
+    // Progress text
+    if (!APP.seenA && !APP.seenB) {
+      elProgressText.textContent = 'Open both designs to unlock feedback';
+    } else if (APP.seenA && !APP.seenB) {
+      elProgressText.textContent = 'Great! Now open Design B to continue';
+    } else if (!APP.seenA && APP.seenB) {
+      elProgressText.textContent = 'Great! Now open Design A to continue';
+    } else {
+      elProgressText.textContent = 'Both reviewed — feedback unlocked below';
+    }
+
+    // Feedback zone
+    if (APP.seenA && APP.seenB) {
+      elFeedbackZone.style.display = 'flex';
+      document.getElementById('progress-hint').style.display = 'none';
+
+      if (APP.submitted) {
+        elBtnSubmitFb.style.display = 'none';
+        elSubmittedMsg.style.display = 'block';
+      } else {
+        elBtnSubmitFb.style.display = '';
+        elSubmittedMsg.style.display = 'none';
+      }
+    } else {
+      elFeedbackZone.style.display = 'none';
+      document.getElementById('progress-hint').style.display = 'block';
+    }
+  }
+
+  // ── handleSubmit ──
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    var selected = elForm.querySelector('input[name="preference"]:checked');
+    if (!selected) {
+      elPrefFieldset.classList.add('error');
+      elPrefFieldset.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    elPrefFieldset.classList.remove('error');
+
+    var preference = selected.value;
+    var feedbackText = elForm.querySelector('textarea[name="feedback"]').value.trim();
+
+    var response = {
+      preference: preference,
+      feedback: feedbackText,
+      timestamp: new Date().toISOString()
+    };
+
+    localStorage.setItem('ab_response', JSON.stringify(response));
+    localStorage.setItem('ab_submitted', '1');
+    APP.submitted = true;
+
+    goto('thankyou');
+  }
+
+  // ── Event listeners ──
+  elCardA.addEventListener('click', function () { goto('viewer', 'a'); });
+  elCardB.addEventListener('click', function () { goto('viewer', 'b'); });
+  elBtnBack.addEventListener('click', function () { goto('choice'); });
+
+  elBtnSubmitFb.addEventListener('click', function () { goto('feedback'); });
+
+  document.getElementById('btn-close-feedback').addEventListener('click', function () {
+    hideOverlay(elScreenFeedback, function () {
+      APP.currentScreen = 'choice';
+    });
+  });
+
+  elForm.addEventListener('submit', handleSubmit);
+
+  // Clear error on radio change
+  elForm.querySelectorAll('input[name="preference"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      elPrefFieldset.classList.remove('error');
+    });
+  });
+
+  document.getElementById('btn-done').addEventListener('click', function () {
+    hideOverlay(elScreenThankyou, function () {
+      APP.currentScreen = 'choice';
+      renderChoiceState();
+    });
+    goto('choice');
+  });
+
+  // ── Init — restore from localStorage ──
+  document.addEventListener('DOMContentLoaded', function () {
+    APP.seenA     = localStorage.getItem('ab_seen_a')    === '1';
+    APP.seenB     = localStorage.getItem('ab_seen_b')    === '1';
+    APP.submitted = localStorage.getItem('ab_submitted') === '1';
+
+    goto('choice');
+  });
+
+})();
+</script>
+</body>
+</html>
