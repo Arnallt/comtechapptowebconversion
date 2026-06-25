@@ -62,14 +62,14 @@
         </div>
 
         <div class="action-btn-row">
-          <button class="action-card-btn" onclick="showToast('Add Funds — coming soon!')">
+          <button class="action-card-btn" onclick="openAddFundsModal()">
             <span class="acb-label">Add Funds</span>
             <div class="acb-footer">
               <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
               <img src="../assets/icons/moneyImage.png" alt="" class="acb-img" onerror="this.style.display='none'">
             </div>
           </button>
-          <button class="action-card-btn" onclick="showToast('Buy Gold — coming soon!')">
+          <button class="action-card-btn" onclick="openBuySellModal('buy')">
             <span class="acb-label">Buy Gold</span>
             <div class="acb-footer">
               <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
@@ -84,14 +84,14 @@
 
         <!-- Withdraw + Sell Gold -->
         <div class="action-btn-row padded-row" style="margin-top:5px;margin-bottom:0;">
-          <button class="action-card-btn" onclick="showToast('Withdraw — coming soon!')">
+          <button class="action-card-btn" onclick="openWithdrawModal()">
             <span class="acb-label">Withdraw</span>
             <div class="acb-footer">
               <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
               <img src="../assets/icons/moneyImage.png" alt="" class="acb-img" onerror="this.style.display='none'">
             </div>
           </button>
-          <button class="action-card-btn" onclick="showToast('Sell Gold — coming soon!')">
+          <button class="action-card-btn" onclick="openBuySellModal('sell')">
             <span class="acb-label">Sell Gold</span>
             <div class="acb-footer">
               <img src="../assets/icons/arrowRoundBlack.png" alt="" class="acb-arrow" onerror="this.style.display='none'">
@@ -330,7 +330,7 @@
       </div>
       <div id="sip-list"></div>
       <div class="create-sip-wrap">
-        <button class="create-sip-btn" onclick="showToast('Create SIP — coming soon!')">+ Create New SIP</button>
+        <button class="create-sip-btn" onclick="openCreateSIPModal()">+ Create New SIP</button>
       </div>
     </div>
 
@@ -360,6 +360,116 @@
       <img src="../assets/icons/support.svg" alt="Support" width="22" height="22" style="filter:brightness(0)">
     </button>
   </nav>
+
+  <!-- ═══ MODALS ═══ -->
+
+  <!-- Modal: Buy/Sell Gold -->
+  <div class="modal-overlay" id="modal-buysell">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title">Buy / Sell Gold</span>
+        <button class="modal-close" onclick="closeModal('modal-buysell')">&times;</button>
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="bs-tab-buy" onclick="setBSTab('buy')">Buy</button>
+        <button class="modal-tab" id="bs-tab-sell" onclick="setBSTab('sell')">Sell</button>
+      </div>
+      <div class="modal-calc-row">
+        <span>Live price</span><span id="bs-live-price">AED 228.94 / g</span>
+      </div>
+      <div class="modal-divider"></div>
+      <label class="modal-input-label">Gold amount (grams)</label>
+      <input class="modal-input" id="bs-gram-input" type="number" min="0" step="0.01" placeholder="e.g. 1.00" oninput="bsRecalc()">
+      <div class="modal-calc-row highlight">
+        <span id="bs-amount-label">You pay</span>
+        <span id="bs-amount-display">—</span>
+      </div>
+      <div id="bs-payment-section">
+        <div class="modal-divider"></div>
+        <label class="modal-input-label">Payment method</label>
+        <div class="payment-options">
+          <div class="payment-option selected" id="pay-deposit" onclick="selectBSPayment('My Deposit')">💰 My Deposit</div>
+          <div class="payment-option" id="pay-card" onclick="selectBSPayment('Credit/Debit')">💳 Credit/Debit</div>
+        </div>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-calc-row"><span id="bs-balance-label">Available balance</span><span id="bs-balance-value">—</span></div>
+      <div class="modal-calc-row"><span>Gold held</span><span id="bs-gold-held">—</span></div>
+      <div class="modal-calc-row"><span id="bs-min-label">Min: 0.02g</span></div>
+      <div class="modal-error" id="bs-error"></div>
+      <button class="modal-proceed-btn" onclick="bsProceed()">Proceed</button>
+    </div>
+  </div>
+
+  <!-- Modal: Add Funds -->
+  <div class="modal-overlay" id="modal-addfunds">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title">Add Funds</span>
+        <button class="modal-close" onclick="closeModal('modal-addfunds')">&times;</button>
+      </div>
+      <div class="modal-calc-row">
+        <span>Current balance</span><span id="af-balance">—</span>
+      </div>
+      <div class="modal-divider"></div>
+      <label class="modal-input-label">Amount (USD)</label>
+      <input class="modal-input" id="af-amount-input" type="number" min="0" step="1" placeholder="e.g. 500">
+      <label class="modal-input-label">Payment method</label>
+      <div class="payment-options">
+        <div class="payment-option selected" id="af-pay-card" onclick="selectAFPayment('Credit/Debit')">💳 Credit/Debit</div>
+        <div class="payment-option" id="af-pay-bank" onclick="selectAFPayment('Bank Transfer')">🏦 Bank Transfer</div>
+      </div>
+      <div class="modal-error" id="af-error"></div>
+      <button class="modal-proceed-btn" onclick="afProceed()">Add Funds</button>
+    </div>
+  </div>
+
+  <!-- Modal: Withdraw -->
+  <div class="modal-overlay" id="modal-withdraw">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title">Withdraw Funds</span>
+        <button class="modal-close" onclick="closeModal('modal-withdraw')">&times;</button>
+      </div>
+      <div class="modal-calc-row">
+        <span>Available to withdraw</span><span id="wd-available">—</span>
+      </div>
+      <div class="modal-divider"></div>
+      <label class="modal-input-label">Amount (USD)</label>
+      <input class="modal-input" id="wd-amount-input" type="number" min="0" step="1" placeholder="e.g. 200">
+      <div class="modal-divider"></div>
+      <div class="modal-calc-row"><span>Destination</span></div>
+      <div style="background:#f8f8f8;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#555;">
+        🏦 Bank Account ending ••••4242
+      </div>
+      <div class="modal-error" id="wd-error"></div>
+      <button class="modal-proceed-btn" onclick="wdProceed()">Withdraw</button>
+    </div>
+  </div>
+
+  <!-- Modal: Create SIP -->
+  <div class="modal-overlay" id="modal-createsip">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title">Create SIP Plan</span>
+        <button class="modal-close" onclick="closeModal('modal-createsip')">&times;</button>
+      </div>
+      <label class="modal-input-label">Plan name</label>
+      <input class="modal-input" id="sip-name-input" type="text" placeholder="e.g. Monthly Gold Saver">
+      <label class="modal-input-label">Amount per cycle (USD)</label>
+      <input class="modal-input" id="sip-amount-input" type="number" min="10" step="1" placeholder="e.g. 100" oninput="sipRecalc()">
+      <label class="modal-input-label">Frequency</label>
+      <select class="modal-input" id="sip-freq-select">
+        <option value="Monthly">Monthly</option>
+        <option value="Weekly">Weekly</option>
+      </select>
+      <div class="modal-calc-row highlight">
+        <span>Gold per cycle</span><span id="sip-gold-calc">—</span>
+      </div>
+      <div class="modal-error" id="sip-error"></div>
+      <button class="modal-proceed-btn" onclick="sipProceed()">Create Plan</button>
+    </div>
+  </div>
 
 </div><!-- /app -->
 

@@ -490,6 +490,233 @@ function showToast(msg) {
 }
 
 // ══════════════════════════════════════
+// MODAL SYSTEM
+// ══════════════════════════════════════
+
+function openModal(id) {
+  document.getElementById(id).classList.add('modal-open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('modal-open');
+}
+
+function initModals() {
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) overlay.classList.remove('modal-open');
+    });
+  });
+}
+
+// ── Buy/Sell Gold Modal ──
+var bsActiveTab = 'buy';
+var bsSelectedPayment = 'My Deposit';
+
+function openBuySellModal(tab) {
+  bsActiveTab = tab || 'buy';
+  bsSelectedPayment = 'My Deposit';
+  document.getElementById('bs-gram-input').value = '';
+  document.getElementById('bs-error').textContent = '';
+  document.getElementById('bs-amount-display').textContent = '—';
+  setBSTab(bsActiveTab);
+  updateBSBalance();
+  openModal('modal-buysell');
+}
+
+function setBSTab(tab) {
+  bsActiveTab = tab;
+  document.getElementById('bs-tab-buy').classList.toggle('active', tab === 'buy');
+  document.getElementById('bs-tab-sell').classList.toggle('active', tab === 'sell');
+  document.getElementById('bs-payment-section').style.display = tab === 'buy' ? '' : 'none';
+  document.getElementById('bs-amount-label').textContent  = tab === 'buy' ? 'You pay' : 'You receive';
+  document.getElementById('bs-min-label').textContent     = tab === 'buy' ? 'Min: 0.02g' : 'Min: 0.5g';
+  document.getElementById('bs-balance-label').textContent = tab === 'buy' ? 'Available balance' : 'Gold held';
+  updateBSBalance();
+  bsRecalc();
+}
+
+function updateBSBalance() {
+  var isAED = currentCurrency === 'AED';
+  var sym   = isAED ? 'AED ' : '$ ';
+  var avail = MOCK_STATE.fund.fundTotal;
+  if (bsActiveTab === 'buy') {
+    var disp = isAED ? toAED(avail) : avail;
+    document.getElementById('bs-balance-value').textContent = sym + fmt2(disp);
+  } else {
+    document.getElementById('bs-balance-value').textContent = fmt2(MOCK_STATE.fund.goldTotal) + ' g';
+  }
+  document.getElementById('bs-gold-held').textContent = fmt2(MOCK_STATE.fund.goldTotal) + ' g';
+}
+
+function bsRecalc() {
+  var grams = parseFloat(document.getElementById('bs-gram-input').value) || 0;
+  if (grams <= 0) {
+    document.getElementById('bs-amount-display').textContent = '—';
+    return;
+  }
+  var aedAmount = grams * MOCK_STATE.buyGm;
+  var isAED = currentCurrency === 'AED';
+  var displayAmt = isAED ? aedAmount : toUSD(aedAmount);
+  var sym = isAED ? 'AED ' : '$ ';
+  document.getElementById('bs-amount-display').textContent = sym + fmt2(displayAmt);
+}
+
+function selectBSPayment(method) {
+  bsSelectedPayment = method;
+  document.getElementById('pay-deposit').classList.toggle('selected', method === 'My Deposit');
+  document.getElementById('pay-card').classList.toggle('selected',   method === 'Credit/Debit');
+}
+
+function bsProceed() {
+  var errEl = document.getElementById('bs-error');
+  errEl.textContent = '';
+  var grams = parseFloat(document.getElementById('bs-gram-input').value) || 0;
+
+  if (bsActiveTab === 'buy') {
+    if (grams < 0.02) { errEl.textContent = 'Minimum purchase is 0.02g'; return; }
+    var cost = grams * MOCK_STATE.buyGm;
+    var costUSD = toUSD(cost);
+    if (costUSD > MOCK_STATE.fund.fundTotal) { errEl.textContent = 'Insufficient balance'; return; }
+    MOCK_STATE.fund.fundTotal  -= costUSD;
+    MOCK_STATE.fund.goldTotal  += grams;
+    MOCK_STATE.transactions.unshift({ id: Date.now(), type: 'buy',
+      amount: costUSD, goldGm: grams, status: 'Completed',
+      date: new Date().toISOString().slice(0,10), paymentMethod: bsSelectedPayment });
+    closeModal('modal-buysell');
+    renderBalance();
+    refreshTransactionList();
+    showToast('Buy order placed! ' + grams.toFixed(4) + 'g added to your holdings.');
+
+  } else {
+    if (grams < 0.5) { errEl.textContent = 'Minimum sell is 0.5g'; return; }
+    if (grams > MOCK_STATE.fund.goldTotal) { errEl.textContent = 'Insufficient gold holdings'; return; }
+    var revenue = grams * MOCK_STATE.buyGm * 0.98;
+    var revenueUSD = toUSD(revenue);
+    MOCK_STATE.fund.goldTotal  -= grams;
+    MOCK_STATE.fund.fundTotal  += revenueUSD;
+    MOCK_STATE.transactions.unshift({ id: Date.now(), type: 'sell',
+      amount: revenueUSD, goldGm: grams, status: 'Completed',
+      date: new Date().toISOString().slice(0,10), paymentMethod: 'Sell Gold' });
+    closeModal('modal-buysell');
+    renderBalance();
+    refreshTransactionList();
+    showToast('Sell order placed! ' + grams.toFixed(4) + 'g sold.');
+  }
+}
+
+function refreshTransactionList() {
+  var buyList  = document.getElementById('fund-buy');
+  var sellList = document.getElementById('fund-sell');
+  if (buyList)  buyList.innerHTML  = '';
+  if (sellList) sellList.innerHTML = '';
+  renderTransactions();
+}
+
+// ── Add Funds Modal ──
+var afSelectedPayment = 'Credit/Debit';
+
+function openAddFundsModal() {
+  var isAED = currentCurrency === 'AED';
+  var sym   = isAED ? 'AED ' : '$ ';
+  var bal   = isAED ? toAED(MOCK_STATE.fund.fundTotal) : MOCK_STATE.fund.fundTotal;
+  document.getElementById('af-balance').textContent      = sym + fmt2(bal);
+  document.getElementById('af-amount-input').value       = '';
+  document.getElementById('af-error').textContent        = '';
+  afSelectedPayment = 'Credit/Debit';
+  document.getElementById('af-pay-card').classList.add('selected');
+  document.getElementById('af-pay-bank').classList.remove('selected');
+  openModal('modal-addfunds');
+}
+
+function selectAFPayment(method) {
+  afSelectedPayment = method;
+  document.getElementById('af-pay-card').classList.toggle('selected', method === 'Credit/Debit');
+  document.getElementById('af-pay-bank').classList.toggle('selected', method === 'Bank Transfer');
+}
+
+function afProceed() {
+  var errEl  = document.getElementById('af-error');
+  errEl.textContent = '';
+  var amount = parseFloat(document.getElementById('af-amount-input').value) || 0;
+  if (amount < 10) { errEl.textContent = 'Minimum deposit is $10'; return; }
+  MOCK_STATE.fund.fundTotal      += amount;
+  MOCK_STATE.fund.totalDeposited += amount;
+  MOCK_STATE.walletDeposits.unshift({ id: Date.now(), amount, method: afSelectedPayment,
+    date: new Date().toISOString().slice(0,10), status: 'Completed' });
+  closeModal('modal-addfunds');
+  renderBalance();
+  var depList = document.getElementById('wallet-deposits');
+  if (depList) { depList.innerHTML = ''; renderWalletDeposits(); }
+  showToast('$ ' + fmt2(amount) + ' added to your wallet!');
+}
+
+// ── Withdraw Modal ──
+function openWithdrawModal() {
+  var isAED = currentCurrency === 'AED';
+  var sym   = isAED ? 'AED ' : '$ ';
+  var avail = isAED ? toAED(MOCK_STATE.fund.fundTotal) : MOCK_STATE.fund.fundTotal;
+  document.getElementById('wd-available').textContent   = sym + fmt2(avail);
+  document.getElementById('wd-amount-input').value      = '';
+  document.getElementById('wd-error').textContent       = '';
+  openModal('modal-withdraw');
+}
+
+function wdProceed() {
+  var errEl  = document.getElementById('wd-error');
+  errEl.textContent = '';
+  var amount = parseFloat(document.getElementById('wd-amount-input').value) || 0;
+  if (amount <= 0) { errEl.textContent = 'Enter a valid amount'; return; }
+  if (amount > MOCK_STATE.fund.fundTotal) { errEl.textContent = 'Insufficient balance'; return; }
+  MOCK_STATE.fund.fundTotal     -= amount;
+  MOCK_STATE.fund.totalWithdrawn += amount;
+  closeModal('modal-withdraw');
+  renderBalance();
+  showToast('Withdrawal of $ ' + fmt2(amount) + ' submitted!');
+}
+
+// ── Create SIP Modal ──
+function openCreateSIPModal() {
+  document.getElementById('sip-name-input').value   = '';
+  document.getElementById('sip-amount-input').value = '';
+  document.getElementById('sip-freq-select').value  = 'Monthly';
+  document.getElementById('sip-gold-calc').textContent = '—';
+  document.getElementById('sip-error').textContent  = '';
+  openModal('modal-createsip');
+}
+
+function sipRecalc() {
+  var amount = parseFloat(document.getElementById('sip-amount-input').value) || 0;
+  if (amount <= 0) { document.getElementById('sip-gold-calc').textContent = '—'; return; }
+  var aedAmount   = amount * MOCK_STATE.conversionRate[0].buyConversion;
+  var goldPerCycle = aedAmount / MOCK_STATE.buyGm;
+  document.getElementById('sip-gold-calc').textContent = goldPerCycle.toFixed(4) + ' g';
+}
+
+function sipProceed() {
+  var errEl  = document.getElementById('sip-error');
+  errEl.textContent = '';
+  var name   = document.getElementById('sip-name-input').value.trim();
+  var amount = parseFloat(document.getElementById('sip-amount-input').value) || 0;
+  var freq   = document.getElementById('sip-freq-select').value;
+  if (!name)        { errEl.textContent = 'Enter a plan name'; return; }
+  if (amount < 10)  { errEl.textContent = 'Minimum SIP amount is $10'; return; }
+  var aedAmount    = amount * MOCK_STATE.conversionRate[0].buyConversion;
+  var goldPerCycle = aedAmount / MOCK_STATE.buyGm;
+  var nextDate = new Date();
+  nextDate.setMonth(nextDate.getMonth() + 1);
+  MOCK_STATE.sip.push({
+    id: Date.now(), name, amount, goldGm: goldPerCycle, frequency: freq,
+    nextDate: nextDate.toISOString().slice(0,10), status: 'active',
+    totalInvested: amount, totalGold: goldPerCycle,
+  });
+  var sipList = document.getElementById('sip-list');
+  if (sipList) { sipList.innerHTML = ''; renderSIP(); }
+  closeModal('modal-createsip');
+  showToast('SIP plan "' + name + '" created!');
+}
+
+// ══════════════════════════════════════
 // INITIALISE
 // ══════════════════════════════════════
 
@@ -513,4 +740,5 @@ document.addEventListener('DOMContentLoaded', function() {
   renderWalletDeposits();
   renderGoldHistory();
   renderSIP();
+  initModals();
 });

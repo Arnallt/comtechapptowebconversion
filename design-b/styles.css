@@ -475,3 +475,196 @@ h1,h2,h3,h4 { font-weight: 700; }
   backdrop-filter: blur(4px);
 }
 #toast.show { opacity: 1; }
+
+/* ════════════════════════════════════════════════════════════
+   MODALS  |  Buy/Sell, Add Funds, Withdraw, Create SIP
+════════════════════════════════════════════════════════════ */
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.modal-open {
+  display: flex;
+}
+
+.modal-panel {
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 24px 20px 36px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Onest', sans-serif;
+  color: #000;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #888;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-close:hover { color: #000; }
+
+.modal-tabs {
+  display: flex;
+  background: #f0f0f0;
+  border-radius: 20px;
+  padding: 3px;
+  margin-bottom: 20px;
+  gap: 4px;
+}
+
+.modal-tab {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #666;
+  transition: all 0.2s;
+  font-family: 'Onest', sans-serif;
+}
+
+.modal-tab.active {
+  background: #CE9214;
+  color: #fff;
+}
+
+.modal-input-label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 6px;
+  display: block;
+  font-weight: 500;
+  font-family: 'Onest', sans-serif;
+}
+
+.modal-input {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-family: 'Onest', sans-serif;
+  margin-bottom: 14px;
+  box-sizing: border-box;
+  outline: none;
+  color: #000;
+  background: #fff;
+}
+
+.modal-input:focus {
+  border-color: #CE9214;
+  box-shadow: 0 0 0 3px rgba(206, 146, 20, 0.1);
+}
+
+.modal-calc-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+  padding: 4px 0;
+  font-family: 'Onest', sans-serif;
+}
+
+.modal-calc-row.highlight {
+  font-weight: 700;
+  color: #CE9214;
+  font-size: 15px;
+}
+
+.payment-options {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.payment-option {
+  flex: 1;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  transition: all 0.2s;
+  font-family: 'Onest', sans-serif;
+  background: #fff;
+}
+
+.payment-option.selected {
+  border-color: #CE9214;
+  background: #FFF8E8;
+  color: #CE9214;
+}
+
+.modal-proceed-btn {
+  width: 100%;
+  background: #CE9214;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 15px 16px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Onest', sans-serif;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.modal-proceed-btn:hover {
+  background: #b8800f;
+}
+
+.modal-proceed-btn:active {
+  background: #a07010;
+}
+
+.modal-error {
+  color: #e53935;
+  font-size: 12px;
+  margin-bottom: 8px;
+  min-height: 16px;
+  font-family: 'Onest', sans-serif;
+}
+
+.modal-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 14px 0;
+}
