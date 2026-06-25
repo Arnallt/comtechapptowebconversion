@@ -539,6 +539,11 @@ function setBSTab(tab) {
 function updateBSBalance() {
   var isAED = currentCurrency === 'AED';
   var sym   = isAED ? 'AED ' : '$ ';
+
+  // Live price (buyGm is AED/g) — keep currency-consistent with the rest of the modal
+  var priceDisp = isAED ? MOCK_STATE.buyGm : toUSD(MOCK_STATE.buyGm);
+  document.getElementById('bs-live-price').textContent = sym + fmt2(priceDisp) + ' / g';
+
   var avail = MOCK_STATE.fund.fundTotal;
   if (bsActiveTab === 'buy') {
     var disp = isAED ? toAED(avail) : avail;
@@ -555,7 +560,8 @@ function bsRecalc() {
     document.getElementById('bs-amount-display').textContent = '—';
     return;
   }
-  var aedAmount = grams * MOCK_STATE.buyGm;
+  // Sell applies the same 2% spread used in bsProceed, so the preview matches the actual payout
+  var aedAmount = grams * MOCK_STATE.buyGm * (bsActiveTab === 'sell' ? 0.98 : 1);
   var isAED = currentCurrency === 'AED';
   var displayAmt = isAED ? aedAmount : toUSD(aedAmount);
   var sym = isAED ? 'AED ' : '$ ';

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>ComTech Gold — Design Review</title>
 <style>
 /* ── Reset ── */
@@ -286,25 +286,28 @@ body {
 /* ── Back button overlay ── */
 #btn-back {
   position: fixed;
-  top: 16px;
-  left: 16px;
+  /* offset by the notch / status-bar inset so it never lands under a cutout on mobile */
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  left: calc(16px + env(safe-area-inset-left, 0px));
   z-index: 9999;
   display: none;
   min-width: 48px;
   min-height: 48px;
   padding: 0 18px;
-  background: rgba(10, 10, 10, 0.78);
+  background: rgba(10, 10, 10, 0.42);
   color: #fff;
   border-radius: 24px;
   font-size: 14px;
   font-weight: 700;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   cursor: pointer;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  /* heavier blur keeps the label readable over both dark and light app headers */
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
   align-items: center;
   gap: 6px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.55);
   touch-action: manipulation;
   letter-spacing: 0.01em;
 }
@@ -313,8 +316,8 @@ body {
 /* ── Viewing label (small pill above back btn) ── */
 #viewing-label {
   position: fixed;
-  top: 72px;
-  left: 16px;
+  top: calc(72px + env(safe-area-inset-top, 0px));
+  left: calc(16px + env(safe-area-inset-left, 0px));
   z-index: 9999;
   display: none;
   padding: 4px 12px;
@@ -825,15 +828,8 @@ body {
 
   // ── markSeen(variant) ──
   function markSeen(variant) {
-    if (variant === 'a' && !APP.seenA) {
-      APP.seenA = true;
-      localStorage.setItem('ab_seen_a', '1');
-    }
-    if (variant === 'b' && !APP.seenB) {
-      APP.seenB = true;
-      localStorage.setItem('ab_seen_b', '1');
-    }
-    // Update card visual immediately
+    if (variant === 'a') APP.seenA = true;
+    if (variant === 'b') APP.seenB = true;
     updateCardState();
   }
 
@@ -897,10 +893,7 @@ body {
       timestamp: new Date().toISOString()
     };
 
-    localStorage.setItem('ab_response', JSON.stringify(response));
-    localStorage.setItem('ab_submitted', '1');
     APP.submitted = true;
-
     goto('thankyou');
   }
 
@@ -909,7 +902,9 @@ body {
   elCardB.addEventListener('click', function () { goto('viewer', 'b'); });
   elBtnBack.addEventListener('click', function () { goto('choice'); });
 
-  elBtnSubmitFb.addEventListener('click', function () { goto('feedback'); });
+  elBtnSubmitFb.addEventListener('click', function () {
+    window.location.href = 'https://forms.gle/oUNLctkgnK64Wd1A6';
+  });
 
   document.getElementById('btn-close-feedback').addEventListener('click', function () {
     hideOverlay(elScreenFeedback, function () {
@@ -934,11 +929,12 @@ body {
     goto('choice');
   });
 
-  // ── Init — restore from localStorage ──
+  // ── Init — always start fresh; clear any stale localStorage from prior builds ──
   document.addEventListener('DOMContentLoaded', function () {
-    APP.seenA     = localStorage.getItem('ab_seen_a')    === '1';
-    APP.seenB     = localStorage.getItem('ab_seen_b')    === '1';
-    APP.submitted = localStorage.getItem('ab_submitted') === '1';
+    localStorage.removeItem('ab_seen_a');
+    localStorage.removeItem('ab_seen_b');
+    localStorage.removeItem('ab_submitted');
+    localStorage.removeItem('ab_response');
 
     goto('choice');
   });
