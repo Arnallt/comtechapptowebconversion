@@ -286,9 +286,10 @@ body {
 /* ── Back button overlay ── */
 #btn-back {
   position: fixed;
-  /* offset by the notch / status-bar inset so it never lands under a cutout on mobile */
+  /* centered at the top, offset by notch on mobile */
   top: calc(16px + env(safe-area-inset-top, 0px));
-  left: calc(16px + env(safe-area-inset-left, 0px));
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
   display: none;
   min-width: 48px;
@@ -317,7 +318,8 @@ body {
 #viewing-label {
   position: fixed;
   top: calc(72px + env(safe-area-inset-top, 0px));
-  left: calc(16px + env(safe-area-inset-left, 0px));
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
   display: none;
   padding: 4px 12px;
@@ -539,10 +541,8 @@ body {
             </div>
             <div class="card-text-wrap">
               <div class="card-label">Design A</div>
-              <div class="card-tag" id="card-a-tag">New Redesign</div>
             </div>
           </div>
-          <p class="card-desc">A fresh redesign with a new visual identity — updated layout, colours, and navigation patterns.</p>
           <div class="card-cta">
             <span>Open Design A</span>
             <span class="card-cta-arrow">→</span>
@@ -562,10 +562,8 @@ body {
             </div>
             <div class="card-text-wrap">
               <div class="card-label">Design B</div>
-              <div class="card-tag" id="card-b-tag">Current Demo</div>
             </div>
           </div>
-          <p class="card-desc">The existing app interface converted to web — the baseline design currently used in the product.</p>
           <div class="card-cta">
             <span>Open Design B</span>
             <span class="card-cta-arrow">→</span>
