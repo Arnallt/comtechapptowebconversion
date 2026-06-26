@@ -253,12 +253,16 @@ body {
 .btn-gold-full:active { opacity: 0.85; transform: scale(0.98); }
 
 .disclaimer {
-  font-size: 11px;
-  color: #a0a0a0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7a4f00;
+  background: #fff3cd;
+  border: 1.5px solid #f0c040;
+  border-radius: 10px;
   text-align: center;
   line-height: 1.6;
-  margin-top: 20px;
-  padding: 0 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
 }
 
 .submitted-msg {
@@ -530,6 +534,9 @@ body {
   <div class="app-frame">
     <div class="choice-inner">
 
+      <!-- Disclaimer -->
+      <p class="disclaimer">⚠️ Prototype only — all values are fictitious mock data. Back button is at the top centre of the screen.</p>
+
       <div class="choice-logo">
         <span class="choice-logo-text">ComTech Gold</span>
       </div>
@@ -596,9 +603,6 @@ body {
         <button id="btn-submit-feedback" class="btn-gold-full">Submit Feedback</button>
         <p class="submitted-msg" id="submitted-msg">✓ Feedback submitted — thank you!</p>
       </div>
-
-      <!-- Disclaimer -->
-      <p class="disclaimer">These are design prototypes for review purposes only. All values, balances, and data shown are fictitious mock data and do not represent real financial information. The back button is located at the top centre of the screen while viewing a design.</p>
 
     </div><!-- /choice-inner -->
   </div><!-- /app-frame -->
