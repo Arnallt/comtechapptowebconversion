@@ -1035,7 +1035,7 @@
 <!-- ═══════════════════════════════════════════
      ONBOARDING OVERLAY
      ═══════════════════════════════════════════ -->
-<div id="ob-overlay" role="dialog" aria-modal="true" aria-label="App introduction">
+<div id="ob-overlay" role="dialog" aria-modal="true" aria-label="App introduction" tabindex="-1">
 
   <div id="ob-track">
 
@@ -2309,6 +2309,11 @@
   var track   = document.getElementById('ob-track');
   var pips    = document.querySelectorAll('.ob-dot-pip');
 
+  // Guard: ignore any dismiss/advance triggered within 700ms of load
+  // (prevents tap-through events from the shell activating overlay buttons)
+  var obBorn = window._obBorn = Date.now();
+  function obGuarded() { return Date.now() - obBorn < 700; }
+
   function obSetSlide(n) {
     obSlide = n;
     track.style.transform = 'translateX(-' + (n * 25) + '%)';
@@ -2319,10 +2324,12 @@
   }
 
   window.obNext = function () {
+    if (obGuarded()) return;
     if (obSlide < obTotal - 1) obSetSlide(obSlide + 1);
   };
 
   window.obDismiss = function () {
+    if (obGuarded()) return;
     overlay.classList.add('ob-hidden');
     setTimeout(function () {
       if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
@@ -2337,18 +2344,21 @@
     if (obTouchX === null) return;
     var dx = e.changedTouches[0].clientX - obTouchX;
     obTouchX = null;
+    if (obGuarded()) return;
     if (dx < -40 && obSlide < obTotal - 1) obSetSlide(obSlide + 1);
     if (dx >  40 && obSlide > 0)           obSetSlide(obSlide - 1);
   }, { passive: true });
 
   overlay.addEventListener('keydown', function (e) {
+    if (obGuarded()) return;
     if (e.key === 'ArrowRight' || e.key === 'Enter') obNext();
     if (e.key === 'ArrowLeft' && obSlide > 0)        obSetSlide(obSlide - 1);
-    if (e.key === 'Escape')                           obDismiss();
+    if (e.key === 'Escape')                           window.obDismiss();
   });
 
   obSetSlide(0);
-  overlay.focus();
+  // Do NOT call overlay.focus() — on Chrome mobile it routes focus to the
+  // nearest child button (#ob-cta), which then fires on the page-open tap.
 }());
 // ── /Onboarding ─────────────────────────────────────
 
@@ -2508,6 +2518,7 @@
 
   // Called by "Enter App →" on onboarding slide 4
   window.obStartTour = function () {
+    if (Date.now() - (window._obBorn || 0) < 700) return; // guard against tap-through
     var obEl = document.getElementById('ob-overlay');
     if (obEl) {
       obEl.classList.add('ob-hidden');
