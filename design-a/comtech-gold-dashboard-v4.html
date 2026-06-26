@@ -691,7 +691,7 @@
      ═══════════════════════════════════════════ */
 
   #ob-overlay {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 9999;
     background: #0B0805;
@@ -886,7 +886,7 @@
      ═══════════════════════════════════════════ */
 
   #tour-overlay {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 10000;
     pointer-events: none;
@@ -924,38 +924,38 @@
     pointer-events: all;
     background: linear-gradient(160deg, #1E1609 0%, #110E07 100%);
     border: 1.5px solid rgba(201,154,53,0.28);
-    border-radius: clamp(12px, 1.6vw, 24px);
-    padding: clamp(18px, 3.2vw, 44px) clamp(20px, 3.6vw, 48px) clamp(14px, 2.2vw, 32px);
+    border-radius: 24px;
+    padding: 44px 52px 36px;
     box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.35);
     animation: tourTipIn 0.3s ease forwards;
   }
 
   #tour-label {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(10px, 1.4vw, 20px);
+    font-size: 22px;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #C99A35;
-    margin: 0 0 clamp(4px, 0.7vw, 10px);
+    margin: 0 0 10px;
   }
 
   #tour-title {
     font-family: 'Fraunces', serif;
-    font-size: clamp(18px, 3vw, 44px);
+    font-size: 52px;
     font-weight: 700;
     line-height: 1.1;
     color: #F5ECD7;
-    margin: 0 0 clamp(8px, 1vw, 16px);
+    margin: 0 0 18px;
   }
 
   #tour-body-text {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(12px, 1.9vw, 27px);
+    font-size: 30px;
     font-weight: 400;
     line-height: 1.55;
     color: rgba(245,236,215,0.68);
-    margin: 0 0 clamp(14px, 1.8vw, 28px);
+    margin: 0 0 32px;
   }
 
   #tour-footer {
@@ -966,26 +966,26 @@
 
   #tour-prog {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(10px, 1.5vw, 21px);
+    font-size: 24px;
     font-weight: 600;
     color: rgba(245,236,215,0.32);
   }
 
   #tour-btns {
     display: flex;
-    gap: clamp(8px, 1vw, 16px);
+    gap: 16px;
     align-items: center;
   }
 
   #tour-skip-btn {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(10px, 1.5vw, 21px);
+    font-size: 24px;
     font-weight: 500;
     background: none;
     border: none;
     color: rgba(245,236,215,0.35);
     cursor: pointer;
-    padding: clamp(6px,0.8vw,12px) clamp(4px,0.5vw,8px);
+    padding: 12px 8px;
     transition: color 0.2s;
   }
 
@@ -993,14 +993,14 @@
 
   #tour-next-btn {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(12px, 1.7vw, 24px);
+    font-size: 28px;
     font-weight: 700;
     background: linear-gradient(135deg, #C99A35 0%, #E8B84B 60%, #C99A35 100%);
     border: none;
-    border-radius: clamp(8px, 1vw, 14px);
+    border-radius: 16px;
     color: #0B0805;
     cursor: pointer;
-    padding: clamp(8px,1vw,16px) clamp(16px,2vw,32px);
+    padding: 20px 48px;
     transition: opacity 0.2s;
     letter-spacing: 0.01em;
   }
@@ -1014,21 +1014,23 @@
   }
 
   #tour-arrow.arrow-up {
-    border-left: 13px solid transparent;
-    border-right: 13px solid transparent;
-    border-bottom: 13px solid rgba(201,154,53,0.28);
-    top: -13px;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-bottom: 16px solid rgba(201,154,53,0.28);
+    top: -16px;
   }
 
   #tour-arrow.arrow-down {
-    border-left: 13px solid transparent;
-    border-right: 13px solid transparent;
-    border-top: 13px solid rgba(201,154,53,0.28);
-    bottom: -13px;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-top: 16px solid rgba(201,154,53,0.28);
+    bottom: -16px;
   }
 </style>
 </head>
 <body>
+
+<div class="frame">
 
 <!-- ═══════════════════════════════════════════
      ONBOARDING OVERLAY
@@ -1155,8 +1157,6 @@
     </div>
   </div>
 </div><!-- /tour-overlay -->
-
-<div class="frame">
 
   <!-- VAULT HERO — fixed at top, never moves -->
   <div class="vault">
@@ -2411,30 +2411,45 @@
   var tip     = document.getElementById('tour-tip');
   var arrow   = document.getElementById('tour-arrow');
 
+  // Convert element's viewport rect to coordinates within .frame's CSS space
+  function frameCoords(el) {
+    var frame  = document.querySelector('.frame');
+    var fRect  = frame.getBoundingClientRect();
+    var scale  = fRect.width / frame.offsetWidth; // displayed px / CSS px
+    var eRect  = el.getBoundingClientRect();
+    return {
+      left:   (eRect.left   - fRect.left) / scale,
+      top:    (eRect.top    - fRect.top)  / scale,
+      width:  eRect.width  / scale,
+      height: eRect.height / scale,
+      bottom: (eRect.bottom - fRect.top)  / scale
+    };
+  }
+
   function tourGo(idx) {
     var stop = STOPS[idx];
     var el   = document.querySelector(stop.sel);
     if (!el) { window.tourNext(); return; }
 
-    var r   = el.getBoundingClientRect();
+    var r   = frameCoords(el);  // frame CSS pixels (1080-wide space)
     var PAD = 14;
     var GAP = 22;
 
-    // Position spotlight
+    // Position spotlight in frame coordinates
     spot.style.left         = (r.left   - PAD) + 'px';
     spot.style.top          = (r.top    - PAD) + 'px';
     spot.style.width        = (r.width  + PAD * 2) + 'px';
     spot.style.height       = (r.height + PAD * 2) + 'px';
     spot.style.borderRadius = stop.radius || '16px';
 
-    // Tooltip dimensions
-    var TW    = Math.min(window.innerWidth * 0.84, 960);
-    var TH_EST = Math.min(240, window.innerHeight * 0.22);
+    // Tooltip: fixed frame-pixel dimensions (designed for 1080-wide canvas)
+    var TW    = 900;
+    var TH_EST = 290;
     tip.style.width = TW + 'px';
 
-    // Tooltip horizontal: centred on element, clamped to viewport
+    // Tooltip horizontal: centred on element, clamped within frame width
     var cx      = r.left + r.width / 2;
-    var tipLeft = Math.max(12, Math.min(cx - TW / 2, window.innerWidth - TW - 12));
+    var tipLeft = Math.max(12, Math.min(cx - TW / 2, 1080 - TW - 12));
 
     // Tooltip vertical: prefer requested side, flip if off-screen
     var tipTop;
@@ -2443,7 +2458,7 @@
       if (tipTop < 12) tipTop = r.bottom + PAD + GAP;
     } else {
       tipTop = r.bottom + PAD + GAP;
-      if (tipTop + TH_EST > window.innerHeight - 12) {
+      if (tipTop + TH_EST > 1920 - 12) {
         tipTop = r.top - PAD - GAP - TH_EST;
       }
     }
@@ -2452,7 +2467,7 @@
     tip.style.top  = tipTop  + 'px';
 
     // Arrow: points toward the highlighted element
-    var arrowX  = Math.max(20, Math.min(cx - tipLeft - 13, TW - 46));
+    var arrowX  = Math.max(20, Math.min(cx - tipLeft - 16, TW - 46));
     arrow.style.left = arrowX + 'px';
     arrow.className  = (tipTop > r.bottom) ? 'arrow-up' : 'arrow-down';
 
