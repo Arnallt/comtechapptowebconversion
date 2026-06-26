@@ -735,20 +735,20 @@
           <div class="profile-menu-sub">ashwin@comtech.ae</div>
         </div>
       </div>
-      <div class="profile-menu-item">
+      <div class="profile-menu-item" data-menu="home" role="button" tabindex="0">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>
         Home
       </div>
-      <div class="profile-menu-item">
+      <div class="profile-menu-item" data-menu="prices" role="button" tabindex="0">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M11 19V4M18 19v-6"/></svg>
         Prices
       </div>
-      <div class="profile-menu-item">
+      <div class="profile-menu-item" data-menu="history" role="button" tabindex="0">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg>
         History
       </div>
       <div class="profile-menu-divider"></div>
-      <div class="profile-menu-item">
+      <div class="profile-menu-item" data-menu="settings" role="button" tabindex="0">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         Settings
       </div>
@@ -847,7 +847,7 @@
           </div>
 
           <div class="gold-stats">
-            <div class="grams">10.05<span>g</span></div>
+            <div class="grams" id="holdingsGrams">10.05<span>g</span></div>
             <div class="value">
               <div class="amt" id="gold-card-value">$1,388.92</div>
               <div class="lbl">Current value</div>
@@ -877,11 +877,11 @@
             </div>
           </div>
           <div class="wallet-card-cta">
-            <button class="btn-emboss tan">
+            <button class="btn-emboss tan" id="addFundsBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               Add funds
             </button>
-            <button class="btn-emboss tan-outline">
+            <button class="btn-emboss tan-outline" id="withdrawBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
               Withdraw
             </button>
@@ -987,21 +987,21 @@
           <div class="redeem-info-card">
             <div>
               <div class="ri-label">Holdings</div>
-              <div class="ri-value">10.05<span>g</span></div>
+              <div class="ri-value" id="redeemHoldings">10.05<span>g</span></div>
             </div>
             <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="rgba(28,20,10,.4)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 9 12 4 3 9l9 5 9-5Z"/><path d="M3 9v8l9 5 9-5V9"/><path d="M12 14v8"/></svg>
           </div>
 
           <div class="balance-strip" style="margin-bottom:16px;">
             <span class="lbl">Amount to redeem</span>
-            <span class="val">max 10.05 g</span>
+            <span class="val" id="redeemMax">max 10.05 g</span>
           </div>
 
           <div class="preset-row">
             <button class="preset-btn" data-redeem-preset="1">1g</button>
             <button class="preset-btn" data-redeem-preset="2">2g</button>
             <button class="preset-btn" data-redeem-preset="5">5g</button>
-            <button class="preset-btn" data-redeem-preset="10.05">All</button>
+            <button class="preset-btn" data-redeem-preset="10.05" data-redeem-all>All</button>
           </div>
 
           <div class="trade-input-wrap">
@@ -1092,10 +1092,16 @@
 
 <script>
 (function () {
-  const GRAMS_HELD = 10.05;
   const OZ_TO_GRAM = 31.1035;
   const AED_RATE   = 3.67;
-  const WALLET_USD = 700.80;
+
+  // ── Mutable app state (the "mock backend") ──
+  // Buy/Sell/Redeem/Gift/Add-funds/Withdraw all mutate this and re-render, so an
+  // action in one panel is reflected everywhere (portfolio, holdings, wallet, etc.).
+  const state = {
+    gramsHeld: 10.05,   // grams of gold currently held
+    walletUSD: 700.80,  // cash balance, always stored in USD
+  };
 
   // panel index map
   const PANEL_IDX = { home:0, buy:1, gift:2, redeem:3, sell:4 };
@@ -1156,6 +1162,16 @@
   const giftPriceRef  = document.getElementById('giftPriceRef');
   const giftConfirmEl = document.getElementById('giftConfirm');
 
+  // state-driven displays (holdings / availability / wallet buttons)
+  const holdingsGramsEl  = document.getElementById('holdingsGrams');
+  const sellAvailEl      = document.getElementById('sell-avail');
+  const giftAvailEl      = document.getElementById('gift-avail');
+  const redeemHoldingsEl = document.getElementById('redeemHoldings');
+  const redeemMaxEl      = document.getElementById('redeemMax');
+  const redeemAllBtn     = document.querySelector('[data-redeem-all]');
+  const addFundsBtn      = document.getElementById('addFundsBtn');
+  const withdrawBtn      = document.getElementById('withdrawBtn');
+
   // helpers
   // inline SVG matching the UAE Dirham symbol (hollow D + two crossbars with serif tips)
   const DIRHAM_HTML = `<svg class="icon-dirham" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;width:.85em;height:.85em;vertical-align:-.1em;fill:currentColor"><path fill-rule="evenodd" d="M8 3L8 97Q55 97 80 76Q95 62 95 50Q95 38 80 24Q55 3 8 3ZM19 87Q53 87 71 72Q83 61 83 50Q83 39 71 28Q53 13 19 13Z"/><path d="M2 37L73 37C79 37 84 41 85 44C85 47 80 50 73 49L2 49Z"/><path d="M2 53L73 53C79 53 84 57 85 60C85 63 80 66 73 65L2 65Z"/></svg>`;
@@ -1195,10 +1211,23 @@
     el.addEventListener('click', () => goTo(el.dataset.goto));
   });
 
+  // render the gold-quantity displays that depend on state.gramsHeld
+  // (holdings card, sell/gift availability, redeem holdings + max + "All" preset)
+  function renderState() {
+    const g = state.gramsHeld;
+    if (holdingsGramsEl)  holdingsGramsEl.innerHTML  = g.toFixed(2) + '<span>g</span>';
+    if (sellAvailEl)      sellAvailEl.textContent    = g.toFixed(2) + ' g';
+    if (giftAvailEl)      giftAvailEl.textContent    = g.toFixed(2) + ' g';
+    if (redeemHoldingsEl) redeemHoldingsEl.innerHTML = g.toFixed(2) + '<span>g</span>';
+    if (redeemMaxEl)      redeemMaxEl.textContent     = 'max ' + g.toFixed(2) + ' g';
+    if (redeemInputEl)    redeemInputEl.max           = g.toFixed(4);
+    if (redeemAllBtn)     redeemAllBtn.dataset.redeemPreset = g.toFixed(4);
+  }
+
   // display update
   function updateDisplays(pgram) {
     if (pgram == null) return;
-    const portUSD = pgram * GRAMS_HELD;
+    const portUSD = pgram * state.gramsHeld;
     const portVal = convert(portUSD);
     const liveVal = convert(pgram);
 
@@ -1208,8 +1237,8 @@
     liveNumEl.textContent = fmt(liveVal);
     goldCardVal.innerHTML = symHTML() + fmt(portVal);
 
-    const walletPrimary = convert(WALLET_USD);
-    const walletOther   = currency === 'AED' ? WALLET_USD : WALLET_USD * AED_RATE;
+    const walletPrimary = convert(state.walletUSD);
+    const walletOther   = currency === 'AED' ? state.walletUSD : state.walletUSD * AED_RATE;
     const otherHTML     = currency === 'AED' ? '$' : DIRHAM_HTML;
     walletMainEl.innerHTML = `<span class="cur">${symHTML()}</span>${fmt(walletPrimary)}`;
     walletAltEl.innerHTML  = `<span class="cur">${otherHTML}</span>${fmt(walletOther)}`;
@@ -1217,6 +1246,7 @@
     // buy balance strip
     buyBalEl.textContent = symText() + ' ' + fmt(walletPrimary);
 
+    renderState();
     updatePriceRefs();
     calcBuy();
     calcSell();
@@ -1280,13 +1310,15 @@
 
   // preset labels for buy switch with mode
   const buyPresetBtns = document.querySelectorAll('[data-buy-preset]');
+  // Presets in "amount" mode are denominated in the *displayed* currency and are
+  // labelled with its symbol, so "$100" means $100 (not an unlabelled foreign amount).
   function updateBuyPresetLabels() {
     const amtPresets = [100, 250, 500, 1000];
     const gramPresets = [0.5, 1, 2, 5];
     buyPresetBtns.forEach((btn, i) => {
       if (buyInputMode === 'amount') {
         btn.dataset.buyPreset = amtPresets[i];
-        btn.textContent = amtPresets[i] >= 1000 ? '1,000' : amtPresets[i];
+        btn.textContent = symText() + ' ' + amtPresets[i].toLocaleString('en-US');
       } else {
         btn.dataset.buyPreset = gramPresets[i];
         btn.textContent = gramPresets[i] + 'g';
@@ -1314,6 +1346,23 @@
     });
   });
 
+  // sell presets mirror buy: currency amounts in "amount" mode, grams in "grams" mode
+  const sellPresetBtns = document.querySelectorAll('[data-sell-preset]');
+  function updateSellPresetLabels() {
+    const amtPresets = [50, 100, 250, 500];
+    const gramPresets = [0.5, 1, 2, 5];
+    sellPresetBtns.forEach((btn, i) => {
+      if (sellInputMode === 'amount') {
+        btn.dataset.sellPreset = amtPresets[i];
+        btn.textContent = symText() + ' ' + amtPresets[i].toLocaleString('en-US');
+      } else {
+        btn.dataset.sellPreset = gramPresets[i];
+        btn.textContent = gramPresets[i] + 'g';
+      }
+      btn.classList.remove('active');
+    });
+  }
+
   // input mode toggles — sell
   document.querySelectorAll('[data-sell-mode]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1328,6 +1377,7 @@
         sellInputCur.textContent = 'g';
         sellInputEl.placeholder = '0.0000';
       }
+      updateSellPresetLabels();
       calcSell();
     });
   });
@@ -1345,23 +1395,16 @@
   document.querySelectorAll('[data-buy-preset]').forEach(btn => {
     btn.addEventListener('click', () => {
       activatePreset(btn.closest('.preset-row'), btn);
-      const v = parseFloat(btn.dataset.buyPreset.replace(',',''));
-      if (buyInputMode === 'amount') {
-        // presets are in AED; convert to display currency
-        buyInputEl.value = currency === 'AED' ? v : (v / AED_RATE).toFixed(2);
-      } else {
-        buyInputEl.value = v;
-      }
+      // preset is already in the displayed currency (amount mode) or grams (grams mode)
+      buyInputEl.value = parseFloat(btn.dataset.buyPreset);
       calcBuy();
     });
   });
   document.querySelectorAll('[data-sell-preset]').forEach(btn => {
     btn.addEventListener('click', () => {
       activatePreset(btn.closest('.preset-row'), btn);
-      // sell presets are always in grams — switch mode to grams if needed
-      const gramsBtn = document.querySelector('[data-sell-mode="grams"]');
-      if (gramsBtn && sellInputMode !== 'grams') gramsBtn.click();
-      sellInputEl.value = btn.dataset.sellPreset;
+      // preset matches the active mode (currency amount or grams) — no mode switching
+      sellInputEl.value = parseFloat(btn.dataset.sellPreset);
       calcSell();
     });
   });
@@ -1385,9 +1428,9 @@
     el?.addEventListener('input', () => rows[i]?.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active')));
   });
 
-  // gift holdings display
-  const giftAvailEl = document.getElementById('gift-avail');
-  if (giftAvailEl) giftAvailEl.textContent = GRAMS_HELD.toFixed(2) + ' g';
+  // initial preset labels (apply currency symbols / correct mode from first paint)
+  updateBuyPresetLabels();
+  updateSellPresetLabels();
 
   // confirm buttons
   function flashConfirm(btn, label, cb) {
@@ -1401,21 +1444,107 @@
     }, 1400);
   }
 
+  const EPS = 1e-6; // float tolerance so "sell all" / "spend all" doesn't fail on rounding
+
   buyConfirmEl.addEventListener('click', () => {
-    if (!(parseFloat(buyInputEl.value) > 0)) return;
-    flashConfirm(buyConfirmEl, '✓ Order Placed', () => goTo('home'));
+    const val = parseFloat(buyInputEl.value);
+    if (!(val > 0) || !lastPgram) return;
+    const rate    = convert(lastPgram);              // displayed currency per gram
+    const grams   = buyInputMode === 'amount' ? (val / rate) : val;
+    const costUSD = grams * lastPgram;
+    if (costUSD > state.walletUSD + EPS) {
+      showToast('Insufficient funds — add money to your wallet first');
+      return;
+    }
+    // commit: cash out, gold in
+    state.walletUSD -= costUSD;
+    state.gramsHeld += grams;
+    updateDisplays(lastPgram);
+    flashConfirm(buyConfirmEl, '✓ Order Placed', () => {
+      showToast('Bought ' + grams.toFixed(4) + ' g · ' + symText() + ' ' + fmt(convert(costUSD)) + ' debited');
+      goTo('home');
+    });
   });
   sellConfirmEl.addEventListener('click', () => {
-    if (!(parseFloat(sellInputEl.value) > 0)) return;
-    flashConfirm(sellConfirmEl, '✓ Sale Placed', () => goTo('home'));
+    const val = parseFloat(sellInputEl.value);
+    if (!(val > 0) || !lastPgram) return;
+    const rate  = convert(lastPgram);
+    const grams = sellInputMode === 'amount' ? (val / rate) : val;
+    if (grams > state.gramsHeld + EPS) {
+      showToast("You only hold " + state.gramsHeld.toFixed(4) + ' g');
+      return;
+    }
+    const proceedsUSD = grams * lastPgram;
+    // commit: gold out, cash in
+    state.gramsHeld -= grams;
+    state.walletUSD += proceedsUSD;
+    updateDisplays(lastPgram);
+    flashConfirm(sellConfirmEl, '✓ Sale Placed', () => {
+      showToast('Sold ' + grams.toFixed(4) + ' g · ' + symText() + ' ' + fmt(convert(proceedsUSD)) + ' added to wallet');
+      goTo('home');
+    });
   });
   redeemConfirmEl.addEventListener('click', () => {
-    if (!(parseFloat(redeemInputEl.value) > 0)) return;
-    flashConfirm(redeemConfirmEl, '✓ Request Sent', () => goTo('home'));
+    const g = parseFloat(redeemInputEl.value);
+    if (!(g > 0)) return;
+    if (g > state.gramsHeld + EPS) {
+      showToast("That's more than your " + state.gramsHeld.toFixed(4) + ' g holding');
+      return;
+    }
+    // physical delivery removes gold from holdings (no cash movement)
+    state.gramsHeld -= g;
+    updateDisplays(lastPgram);
+    flashConfirm(redeemConfirmEl, '✓ Request Sent', () => {
+      showToast(g.toFixed(2) + ' g requested for delivery');
+      goTo('home');
+    });
   });
   giftConfirmEl.addEventListener('click', () => {
-    if (!(parseFloat(giftInputEl.value) > 0)) return;
-    flashConfirm(giftConfirmEl, '✓ Gift Sent!', () => goTo('home'));
+    const g = parseFloat(giftInputEl.value);
+    if (!(g > 0)) return;
+    if (g > state.gramsHeld + EPS) {
+      showToast("You only hold " + state.gramsHeld.toFixed(4) + ' g to gift');
+      return;
+    }
+    const recipEl = document.getElementById('giftRecipient');
+    const recip   = recipEl ? recipEl.value.trim() : '';
+    // gifting transfers gold out of holdings
+    state.gramsHeld -= g;
+    updateDisplays(lastPgram);
+    flashConfirm(giftConfirmEl, '✓ Gift Sent!', () => {
+      showToast('Gifted ' + g.toFixed(2) + ' g' + (recip ? ' to ' + recip : ''));
+      goTo('home');
+    });
+  });
+
+  // ── wallet: add funds / withdraw ──
+  // No dedicated panel for these, so use a simple prompt in the displayed currency.
+  function promptAmount(title) {
+    const raw = prompt(title + ' — amount in ' + symText() + ':');
+    if (raw == null) return null;            // cancelled
+    const amt = parseFloat(raw);
+    if (!(amt > 0)) { showToast('Enter a valid amount'); return null; }
+    return amt;                              // in displayed currency
+  }
+  if (addFundsBtn) addFundsBtn.addEventListener('click', () => {
+    const amt = promptAmount('Add funds');
+    if (amt == null) return;
+    const usd = currency === 'AED' ? amt / AED_RATE : amt;
+    state.walletUSD += usd;
+    updateDisplays(lastPgram);
+    showToast(symText() + ' ' + fmt(amt) + ' added to your wallet');
+  });
+  if (withdrawBtn) withdrawBtn.addEventListener('click', () => {
+    const amt = promptAmount('Withdraw');
+    if (amt == null) return;
+    const usd = currency === 'AED' ? amt / AED_RATE : amt;
+    if (usd > state.walletUSD + EPS) {
+      showToast('Insufficient balance — you have ' + symText() + ' ' + fmt(convert(state.walletUSD)));
+      return;
+    }
+    state.walletUSD -= usd;
+    updateDisplays(lastPgram);
+    showToast(symText() + ' ' + fmt(amt) + ' withdrawn');
   });
 
   // currency toggle
@@ -1427,6 +1556,9 @@
       // update buy input cur label if in amount mode
       if (buyInputMode === 'amount') buyInputCur.innerHTML = symHTML();
       if (sellInputMode === 'amount') sellInputCur.innerHTML = symHTML();
+      // re-label currency-denominated presets for the new currency
+      updateBuyPresetLabels();
+      updateSellPresetLabels();
       updateDisplays(lastPgram);
       if (lastPts) renderChart(lastPts, currentTf);
     });
@@ -1442,6 +1574,32 @@
     });
   });
 
+  // lightweight toast (no markup required; injected into the scaled frame)
+  let toastTimer;
+  function showToast(msg) {
+    let t = document.getElementById('aToast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'aToast';
+      t.style.cssText = 'position:absolute;left:50%;bottom:130px;transform:translateX(-50%) translateY(12px);' +
+        'background:rgba(28,20,10,.96);color:#F5ECD8;font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:600;' +
+        'font-size:25px;line-height:1.3;padding:20px 32px;border-radius:20px;border:1px solid rgba(201,175,128,.4);' +
+        'box-shadow:0 16px 50px rgba(0,0,0,.55);z-index:9999;opacity:0;transition:opacity .25s ease,transform .25s ease;' +
+        'pointer-events:none;max-width:78%;text-align:center;';
+      document.querySelector('.frame').appendChild(t);
+    }
+    t.textContent = msg;
+    requestAnimationFrame(() => {
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(12px)';
+    }, 1900);
+  }
+
   // profile menu
   const avatarBtn   = document.getElementById('avatarBtn');
   const profileMenu = document.getElementById('profileMenu');
@@ -1455,6 +1613,28 @@
       profileMenu.classList.remove('open');
       avatarBtn.setAttribute('aria-expanded', 'false');
     }
+  });
+
+  // profile menu items — close the menu, then navigate or show a placeholder toast
+  function runMenuAction(action) {
+    profileMenu.classList.remove('open');
+    avatarBtn.setAttribute('aria-expanded', 'false');
+    if (action === 'home') {
+      goTo('home');
+    } else if (action === 'prices') {
+      goTo('home');
+      showToast('Live gold prices — see the chart above');
+    } else if (action === 'history') {
+      showToast('Transaction history — coming soon');
+    } else if (action === 'settings') {
+      showToast('Settings — coming soon');
+    }
+  }
+  document.querySelectorAll('.profile-menu-item').forEach(item => {
+    item.addEventListener('click', () => runMenuAction(item.dataset.menu));
+    item.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); runMenuAction(item.dataset.menu); }
+    });
   });
 
   // chart helpers
