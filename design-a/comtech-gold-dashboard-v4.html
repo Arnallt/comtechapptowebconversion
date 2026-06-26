@@ -685,9 +685,476 @@
   }
   .nav-item.active svg{ stroke:var(--ink); }
   .nav-item.active span{ color:var(--ink); }
+
+  /* ═══════════════════════════════════════════
+     ONBOARDING OVERLAY
+     ═══════════════════════════════════════════ */
+
+  #ob-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #0B0805;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: opacity 0.45s ease;
+  }
+
+  #ob-overlay.ob-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #ob-track {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    width: 400%;
+    transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ob-slide {
+    width: 25%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 64px 0;
+    box-sizing: border-box;
+  }
+
+  .ob-slide-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 680px;
+  }
+
+  .ob-icon-wrap {
+    width: 120px;
+    height: 120px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 48px;
+    background: rgba(201, 154, 53, 0.08);
+    border: 1.5px solid rgba(201, 154, 53, 0.2);
+  }
+
+  .ob-icon-wrap svg {
+    width: 72px;
+    height: 72px;
+  }
+
+  .ob-eyebrow {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #C99A35;
+    margin: 0 0 20px;
+  }
+
+  .ob-heading {
+    font-family: 'Fraunces', serif;
+    font-size: 72px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #F5ECD7;
+    margin: 0 0 36px;
+  }
+
+  .ob-body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: rgba(245, 236, 215, 0.65);
+    margin: 0 0 48px;
+  }
+
+  .ob-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    align-self: stretch;
+    text-align: left;
+  }
+
+  .ob-features li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: rgba(245, 236, 215, 0.8);
+  }
+
+  .ob-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #C99A35;
+    flex-shrink: 0;
+  }
+
+  #ob-cta {
+    width: 100%;
+    padding: 36px 0;
+    background: linear-gradient(135deg, #C99A35 0%, #E8B84B 60%, #C99A35 100%);
+    border: none;
+    border-radius: 20px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #0B0805;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+
+  #ob-cta:active { opacity: 0.82; }
+
+  #ob-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px 64px 72px;
+    flex-shrink: 0;
+  }
+
+  #ob-skip,
+  #ob-next {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 12px 8px;
+    min-width: 100px;
+    transition: opacity 0.2s;
+  }
+
+  #ob-skip {
+    color: rgba(245, 236, 215, 0.4);
+    text-align: left;
+  }
+
+  #ob-next {
+    color: #C99A35;
+    text-align: right;
+  }
+
+  #ob-skip:active,
+  #ob-next:active { opacity: 0.6; }
+
+  #ob-overlay.ob-last #ob-next { visibility: hidden; }
+
+  #ob-dots {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .ob-dot-pip {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(201, 154, 53, 0.25);
+    transition: background 0.25s, width 0.25s;
+    display: block;
+  }
+
+  .ob-dot-pip.active {
+    background: #C99A35;
+    width: 28px;
+    border-radius: 5px;
+  }
+
+  /* ═══════════════════════════════════════════
+     GUIDED TOUR
+     ═══════════════════════════════════════════ */
+
+  #tour-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    pointer-events: none;
+    display: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  #tour-overlay.tour-active {
+    display: block;
+    pointer-events: all;
+  }
+
+  #tour-spot {
+    position: absolute;
+    pointer-events: none;
+    transition: left 0.38s cubic-bezier(0.4,0,0.2,1),
+                top  0.38s cubic-bezier(0.4,0,0.2,1),
+                width  0.38s cubic-bezier(0.4,0,0.2,1),
+                height 0.38s cubic-bezier(0.4,0,0.2,1),
+                border-radius 0.38s cubic-bezier(0.4,0,0.2,1);
+    box-shadow:
+      0 0 0 5000px rgba(0,0,0,0.78),
+      0 0 0 2.5px #C99A35,
+      0 0 28px 8px rgba(201,154,53,0.22);
+  }
+
+  @keyframes tourTipIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  #tour-tip {
+    position: absolute;
+    pointer-events: all;
+    background: linear-gradient(160deg, #1E1609 0%, #110E07 100%);
+    border: 1.5px solid rgba(201,154,53,0.28);
+    border-radius: clamp(12px, 1.6vw, 24px);
+    padding: clamp(18px, 3.2vw, 44px) clamp(20px, 3.6vw, 48px) clamp(14px, 2.2vw, 32px);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.35);
+    animation: tourTipIn 0.3s ease forwards;
+  }
+
+  #tour-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(10px, 1.4vw, 20px);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #C99A35;
+    margin: 0 0 clamp(4px, 0.7vw, 10px);
+  }
+
+  #tour-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(18px, 3vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    color: #F5ECD7;
+    margin: 0 0 clamp(8px, 1vw, 16px);
+  }
+
+  #tour-body-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(12px, 1.9vw, 27px);
+    font-weight: 400;
+    line-height: 1.55;
+    color: rgba(245,236,215,0.68);
+    margin: 0 0 clamp(14px, 1.8vw, 28px);
+  }
+
+  #tour-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  #tour-prog {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(10px, 1.5vw, 21px);
+    font-weight: 600;
+    color: rgba(245,236,215,0.32);
+  }
+
+  #tour-btns {
+    display: flex;
+    gap: clamp(8px, 1vw, 16px);
+    align-items: center;
+  }
+
+  #tour-skip-btn {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(10px, 1.5vw, 21px);
+    font-weight: 500;
+    background: none;
+    border: none;
+    color: rgba(245,236,215,0.35);
+    cursor: pointer;
+    padding: clamp(6px,0.8vw,12px) clamp(4px,0.5vw,8px);
+    transition: color 0.2s;
+  }
+
+  #tour-skip-btn:hover { color: rgba(245,236,215,0.6); }
+
+  #tour-next-btn {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(12px, 1.7vw, 24px);
+    font-weight: 700;
+    background: linear-gradient(135deg, #C99A35 0%, #E8B84B 60%, #C99A35 100%);
+    border: none;
+    border-radius: clamp(8px, 1vw, 14px);
+    color: #0B0805;
+    cursor: pointer;
+    padding: clamp(8px,1vw,16px) clamp(16px,2vw,32px);
+    transition: opacity 0.2s;
+    letter-spacing: 0.01em;
+  }
+
+  #tour-next-btn:active { opacity: 0.82; }
+
+  #tour-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+
+  #tour-arrow.arrow-up {
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-bottom: 13px solid rgba(201,154,53,0.28);
+    top: -13px;
+  }
+
+  #tour-arrow.arrow-down {
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-top: 13px solid rgba(201,154,53,0.28);
+    bottom: -13px;
+  }
 </style>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════
+     ONBOARDING OVERLAY
+     ═══════════════════════════════════════════ -->
+<div id="ob-overlay" role="dialog" aria-modal="true" aria-label="App introduction">
+
+  <div id="ob-track">
+
+    <!-- Slide 1: Welcome -->
+    <div class="ob-slide" data-slide="0">
+      <div class="ob-slide-inner">
+        <div class="ob-icon-wrap ob-icon-brand">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+            <rect width="72" height="72" rx="18" fill="#C99A35" opacity="0.15"/>
+            <path d="M14 52 L36 20 L58 52 Z" fill="none" stroke="#C99A35" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M22 40 L50 40" stroke="#C99A35" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="36" cy="20" r="3.5" fill="#C99A35"/>
+          </svg>
+        </div>
+        <p class="ob-eyebrow">ComTech Gold</p>
+        <h1 class="ob-heading">Your Gold,<br>Simplified.</h1>
+        <p class="ob-body">A smarter way to buy, track, and manage your gold investment — right from your phone.</p>
+      </div>
+    </div>
+
+    <!-- Slide 2: Portfolio -->
+    <div class="ob-slide" data-slide="1">
+      <div class="ob-slide-inner">
+        <div class="ob-icon-wrap ob-icon-chart">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+            <rect width="72" height="72" rx="18" fill="#C99A35" opacity="0.15"/>
+            <polyline points="14,50 26,34 36,38 48,24 58,28" fill="none" stroke="#C99A35" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="48" cy="24" r="3.5" fill="#C99A35"/>
+          </svg>
+        </div>
+        <p class="ob-eyebrow">Portfolio &amp; Prices</p>
+        <h1 class="ob-heading">Track Your<br>Gold Live.</h1>
+        <p class="ob-body">Your portfolio value and live gold spot price update in real time. Filter the chart by 1H, 1D, 5D, 1M or 6M.</p>
+        <ul class="ob-features">
+          <li><span class="ob-dot"></span>Live portfolio value</li>
+          <li><span class="ob-dot"></span>Real-time spot price</li>
+          <li><span class="ob-dot"></span>Interactive price chart</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Slide 3: Trade -->
+    <div class="ob-slide" data-slide="2">
+      <div class="ob-slide-inner">
+        <div class="ob-icon-wrap ob-icon-trade">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+            <rect width="72" height="72" rx="18" fill="#C99A35" opacity="0.15"/>
+            <rect x="16" y="28" width="18" height="18" rx="3" fill="#C99A35" opacity="0.8"/>
+            <rect x="38" y="26" width="18" height="18" rx="3" fill="none" stroke="#C99A35" stroke-width="2.5"/>
+            <path d="M30 20 L42 20 M38 16 L42 20 L38 24" stroke="#C99A35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M30 52 L42 52 M34 48 L30 52 L34 56" stroke="#C99A35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="ob-eyebrow">Buy · Sell · Gift · Redeem</p>
+        <h1 class="ob-heading">Trade Gold<br>Instantly.</h1>
+        <p class="ob-body">Buy or sell by amount or by grams. Gift gold to anyone. Request physical delivery to your door.</p>
+        <ul class="ob-features">
+          <li><span class="ob-dot"></span>Buy by amount or grams</li>
+          <li><span class="ob-dot"></span>Sell with live spread price</li>
+          <li><span class="ob-dot"></span>Gift &amp; redeem anytime</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Slide 4: Wallet -->
+    <div class="ob-slide" data-slide="3">
+      <div class="ob-slide-inner">
+        <div class="ob-icon-wrap ob-icon-wallet">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+            <rect width="72" height="72" rx="18" fill="#C99A35" opacity="0.15"/>
+            <rect x="12" y="24" width="48" height="30" rx="5" fill="none" stroke="#C99A35" stroke-width="2.5"/>
+            <path d="M12 32 L60 32" stroke="#C99A35" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="48" cy="43" r="4" fill="#C99A35" opacity="0.85"/>
+          </svg>
+        </div>
+        <p class="ob-eyebrow">Wallet &amp; Funds</p>
+        <h1 class="ob-heading">Your Wallet,<br>Your Way.</h1>
+        <p class="ob-body">Add funds or withdraw earnings. Switch between USD and AED with a single tap.</p>
+        <ul class="ob-features">
+          <li><span class="ob-dot"></span>Add &amp; withdraw funds</li>
+          <li><span class="ob-dot"></span>USD ⇄ AED currency toggle</li>
+          <li><span class="ob-dot"></span>Instant balance updates</li>
+        </ul>
+        <button id="ob-cta" onclick="obStartTour()">Enter App →</button>
+      </div>
+    </div>
+
+  </div><!-- /ob-track -->
+
+  <div id="ob-controls">
+    <button id="ob-skip" onclick="obDismiss()">Skip</button>
+    <div id="ob-dots">
+      <span class="ob-dot-pip active" data-pip="0"></span>
+      <span class="ob-dot-pip" data-pip="1"></span>
+      <span class="ob-dot-pip" data-pip="2"></span>
+      <span class="ob-dot-pip" data-pip="3"></span>
+    </div>
+    <button id="ob-next" onclick="obNext()">Next</button>
+  </div>
+
+</div><!-- /ob-overlay -->
+
+<!-- ═══════════════════════════════════════════
+     GUIDED TOUR OVERLAY
+     ═══════════════════════════════════════════ -->
+<div id="tour-overlay" aria-hidden="true">
+  <div id="tour-spot"></div>
+  <div id="tour-tip">
+    <div id="tour-arrow"></div>
+    <p id="tour-label"></p>
+    <h2 id="tour-title"></h2>
+    <p id="tour-body-text"></p>
+    <div id="tour-footer">
+      <span id="tour-prog"></span>
+      <div id="tour-btns">
+        <button id="tour-skip-btn" onclick="tourSkip()">Skip tour</button>
+        <button id="tour-next-btn" onclick="tourNext()">Next →</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /tour-overlay -->
 
 <div class="frame">
 
@@ -1833,6 +2300,212 @@
 
   load(currentTf);
 })();
+
+// ── Onboarding ──────────────────────────────────────
+(function () {
+  var obSlide = 0;
+  var obTotal = 4;
+  var overlay = document.getElementById('ob-overlay');
+  var track   = document.getElementById('ob-track');
+  var pips    = document.querySelectorAll('.ob-dot-pip');
+
+  function obSetSlide(n) {
+    obSlide = n;
+    track.style.transform = 'translateX(-' + (n * 25) + '%)';
+    pips.forEach(function (pip, i) {
+      pip.classList.toggle('active', i === n);
+    });
+    overlay.classList.toggle('ob-last', n === obTotal - 1);
+  }
+
+  window.obNext = function () {
+    if (obSlide < obTotal - 1) obSetSlide(obSlide + 1);
+  };
+
+  window.obDismiss = function () {
+    overlay.classList.add('ob-hidden');
+    setTimeout(function () {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 500);
+  };
+
+  var obTouchX = null;
+  overlay.addEventListener('touchstart', function (e) {
+    obTouchX = e.touches[0].clientX;
+  }, { passive: true });
+  overlay.addEventListener('touchend', function (e) {
+    if (obTouchX === null) return;
+    var dx = e.changedTouches[0].clientX - obTouchX;
+    obTouchX = null;
+    if (dx < -40 && obSlide < obTotal - 1) obSetSlide(obSlide + 1);
+    if (dx >  40 && obSlide > 0)           obSetSlide(obSlide - 1);
+  }, { passive: true });
+
+  overlay.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'Enter') obNext();
+    if (e.key === 'ArrowLeft' && obSlide > 0)        obSetSlide(obSlide - 1);
+    if (e.key === 'Escape')                           obDismiss();
+  });
+
+  obSetSlide(0);
+  overlay.focus();
+}());
+// ── /Onboarding ─────────────────────────────────────
+
+// ── Guided Tour ──────────────────────────────────────
+(function () {
+  var STOPS = [
+    {
+      sel:    '.pill-toggle',
+      label:  'Currency',
+      title:  'USD or AED — Your Choice',
+      body:   'One tap switches every value in the app between US Dollars and UAE Dirhams.',
+      pos:    'below',
+      radius: '40px'
+    },
+    {
+      sel:    '.vault-stats',
+      label:  'Portfolio',
+      title:  'Your Holdings at a Glance',
+      body:   'Left: your gold\'s current value. Right: the live spot price per gram. Both update automatically.',
+      pos:    'below',
+      radius: '16px'
+    },
+    {
+      sel:    '.vault-chart',
+      label:  'Price Chart',
+      title:  'Gold\'s Full Price History',
+      body:   'Tap 1H, 1D, 5D, 1M or 6M to explore how the gold price has moved over time.',
+      pos:    'below',
+      radius: '20px'
+    },
+    {
+      sel:    '.gold-card',
+      label:  'Gold Holdings',
+      title:  'Your Gold Balance',
+      body:   'Your total grams held. Tap Buy to add more, or Sell to convert to cash at the live price.',
+      pos:    'below',
+      radius: '24px'
+    },
+    {
+      sel:    '.wallet-card',
+      label:  'Wallet',
+      title:  'Your Cash Balance',
+      body:   'The funds available to invest. Add money or withdraw earnings whenever you like.',
+      pos:    'above',
+      radius: '24px'
+    },
+    {
+      sel:    '.bottom-nav',
+      label:  'Navigation',
+      title:  'Five Tabs. Total Control.',
+      body:   'Home, Buy, Gift, Redeem and Sell — everything you need, always one tap away.',
+      pos:    'above',
+      radius: '0px'
+    }
+  ];
+
+  var curStop = 0;
+  var overlay = document.getElementById('tour-overlay');
+  var spot    = document.getElementById('tour-spot');
+  var tip     = document.getElementById('tour-tip');
+  var arrow   = document.getElementById('tour-arrow');
+
+  function tourGo(idx) {
+    var stop = STOPS[idx];
+    var el   = document.querySelector(stop.sel);
+    if (!el) { window.tourNext(); return; }
+
+    var r   = el.getBoundingClientRect();
+    var PAD = 14;
+    var GAP = 22;
+
+    // Position spotlight
+    spot.style.left         = (r.left   - PAD) + 'px';
+    spot.style.top          = (r.top    - PAD) + 'px';
+    spot.style.width        = (r.width  + PAD * 2) + 'px';
+    spot.style.height       = (r.height + PAD * 2) + 'px';
+    spot.style.borderRadius = stop.radius || '16px';
+
+    // Tooltip dimensions
+    var TW    = Math.min(window.innerWidth * 0.84, 960);
+    var TH_EST = Math.min(240, window.innerHeight * 0.22);
+    tip.style.width = TW + 'px';
+
+    // Tooltip horizontal: centred on element, clamped to viewport
+    var cx      = r.left + r.width / 2;
+    var tipLeft = Math.max(12, Math.min(cx - TW / 2, window.innerWidth - TW - 12));
+
+    // Tooltip vertical: prefer requested side, flip if off-screen
+    var tipTop;
+    if (stop.pos === 'above') {
+      tipTop = r.top - PAD - GAP - TH_EST;
+      if (tipTop < 12) tipTop = r.bottom + PAD + GAP;
+    } else {
+      tipTop = r.bottom + PAD + GAP;
+      if (tipTop + TH_EST > window.innerHeight - 12) {
+        tipTop = r.top - PAD - GAP - TH_EST;
+      }
+    }
+
+    tip.style.left = tipLeft + 'px';
+    tip.style.top  = tipTop  + 'px';
+
+    // Arrow: points toward the highlighted element
+    var arrowX  = Math.max(20, Math.min(cx - tipLeft - 13, TW - 46));
+    arrow.style.left = arrowX + 'px';
+    arrow.className  = (tipTop > r.bottom) ? 'arrow-up' : 'arrow-down';
+
+    // Content
+    document.getElementById('tour-label').textContent     = stop.label;
+    document.getElementById('tour-title').textContent     = stop.title;
+    document.getElementById('tour-body-text').textContent = stop.body;
+    document.getElementById('tour-prog').textContent      = (idx + 1) + ' of ' + STOPS.length;
+    document.getElementById('tour-next-btn').textContent  =
+      (idx === STOPS.length - 1) ? 'Done ✓' : 'Next →';
+
+    // Restart fade-in animation
+    tip.style.animation = 'none';
+    void tip.offsetWidth;
+    tip.style.animation = '';
+
+    curStop = idx;
+  }
+
+  function tourStart() {
+    curStop = 0;
+    overlay.classList.add('tour-active');
+    overlay.setAttribute('aria-hidden', 'false');
+    setTimeout(function () { tourGo(0); }, 80);
+  }
+
+  function tourEnd() {
+    overlay.classList.remove('tour-active');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+
+  window.tourNext = function () {
+    if (curStop < STOPS.length - 1) tourGo(curStop + 1);
+    else tourEnd();
+  };
+
+  window.tourSkip = function () { tourEnd(); };
+
+  // Called by "Enter App →" on onboarding slide 4
+  window.obStartTour = function () {
+    var obEl = document.getElementById('ob-overlay');
+    if (obEl) {
+      obEl.classList.add('ob-hidden');
+      setTimeout(function () {
+        if (obEl.parentNode) obEl.parentNode.removeChild(obEl);
+        tourStart();
+      }, 480);
+    } else {
+      tourStart();
+    }
+  };
+}());
+// ── /Guided Tour ─────────────────────────────────────
 </script>
 </body>
 </html>
